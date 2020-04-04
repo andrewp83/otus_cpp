@@ -1,8 +1,8 @@
-#include <iostream>
+#include "lib/includes/lib.h"
 
 int main (int, char **)
 {
-    std::cout << "Hello, World!" << std::endl;
-    
+	printHello();
+	
     return 0;
 }
