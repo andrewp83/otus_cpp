@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(helloworld VERSION 0.0.1)
+project(helloworld VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
 add_subdirectory(lib)
 
