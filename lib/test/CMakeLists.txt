@@ -36,7 +36,3 @@ else ()
         -Wall -Wextra -pedantic -Werror
     )
 endif()
-
-enable_testing()
-
-add_test(test_version test_version)
