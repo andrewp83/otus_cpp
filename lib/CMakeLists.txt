@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(Library VERSION 0.0.1$ENV{TRAVIS_BUILD_NUMBER})
+if(DEFINED ENV{TRAVIS_BUILD_NUMBER})
+	set(COMMON_TBN $ENV{TRAVIS_BUILD_NUMBER})
+else()
+	set(COMMON_TBN 1)
+	message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
+endif()
+
+project(Library VERSION 0.0.${COMMON_TBN})
 
 add_subdirectory(test)
 
