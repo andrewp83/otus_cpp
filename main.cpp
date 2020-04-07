@@ -1,8 +1,7 @@
-#include "lib/includes/lib.h"
+#include <iostream>
+#include "ip_filter.h"
 
-int main (int, char **)
-{
-	printHello();
-	
-    return 0;
+int main(int argc, char** argv) {
+	std::cout << "Hello, filter!" << std::endl;
+	return 0;
 }

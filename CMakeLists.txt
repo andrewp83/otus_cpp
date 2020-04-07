@@ -7,36 +7,45 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(helloworld VERSION 0.0.${COMMON_TBN})
+project(ip_filter VERSION 0.0.${COMMON_TBN})
 
-add_subdirectory(lib)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-add_executable(helloworld_cli main.cpp)
-
-set_target_properties(helloworld_cli PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED ON
+set(COMPILE_PROPERTIES
+	CXX_STANDARD 14
+   	CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(helloworld_cli
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/includes"
+set(SOURCES main.cpp ip_filter.cpp)
+set(HEADERS ip_filter.h)
+add_executable(ip_filter ${SOURCES} ${HEADERS})
+
+set_target_properties(ip_filter PROPERTIES
+	${COMPILE_PROPERTIES}
 )
 
-target_link_libraries(helloworld_cli PRIVATE
-    helloworld
+# test_filter
+
+set(SOURCES_TEST test_filter.cpp ip_filter.cpp)
+set(HEADERS_TEST ip_filter.h)
+add_executable(test_filter ${SOURCES_TEST} ${HEADERS_TEST})
+
+set_target_properties(test_filter PROPERTIES
+	${COMPILE_PROPERTIES}
 )
 
-if (MSVC)
-    target_compile_options(helloworld_cli PRIVATE
-        /W4
-    )
-else ()
-    target_compile_options(helloworld_cli PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-endif()
+set_target_properties(test_filter PROPERTIES
+    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
+)
 
-install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
+target_link_libraries(test_filter
+    ${Boost_LIBRARIES}
+)
+
+######
+
+install(TARGETS ip_filter RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -50,4 +59,4 @@ include(CPack)
 
 enable_testing()
 
-add_test(test_version lib/test/test_version)
+add_test(test_filter test_filter)
