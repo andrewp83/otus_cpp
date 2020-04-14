@@ -58,6 +58,7 @@ IpPool ip_filter_1_2(const IpPool& pool, octet_t value1, octet_t value2) {
 }
 
 IpPool ip_filter_any(const IpPool& pool, octet_t value) {
+    // наверное можно сделать лучше
     return ip_filter(pool, [=](const IpAddressV4& ip) {
         bool found = false;
         for (auto i = 0; i < ip.LENGTH; i++) {

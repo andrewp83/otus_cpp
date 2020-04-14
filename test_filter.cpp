@@ -134,7 +134,6 @@ BOOST_AUTO_TEST_CASE(test_valid_filter_1_2)
     for (const auto& ip : filtered) {
         BOOST_CHECK(ip.getOctet(0) == 46 && ip.getOctet(1) == 70);
     }
-    print_ip_pool(filtered);
 }
 
 BOOST_AUTO_TEST_CASE(test_valid_filter_any)
