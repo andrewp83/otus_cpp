@@ -57,4 +57,4 @@ include(CPack)
 
 enable_testing()
 
-add_test(test_memory_manager memory_manager/test/test_memory_mgr)
+add_test(test_memory_manager memory_manager/test_memory_mgr)
