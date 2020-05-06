@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-#pragma mark - MemoryBlock
+// MemoryBlock
 
 MemoryBlock::MemoryBlock(size_t size) : size(size) {
 	ptr = (byte_t*)malloc(size);
@@ -98,7 +98,7 @@ std::string MemoryBlock::dump() {
 	return res;
 }
 
-#pragma mark - MemoryMgr
+// MemoryMgr
 
 MemoryMgr& MemoryMgr::get_instance(size_t block_size) {
     static std::map<size_t, MemoryMgr*> managers_cache;
