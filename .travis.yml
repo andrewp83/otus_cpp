@@ -11,8 +11,8 @@ script:
 - cmake --build . --target package
 deploy:
   on:
-    branch: homework_02
+    branch: homework_03
   provider: script
   skip_cleanup: true
   script:
-  - curl -T ip_filter-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/ip_filter/$TRAVIS_BUILD_NUMBER/ip_filter-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+  - curl -T allocator-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/allocator/$TRAVIS_BUILD_NUMBER/allocator-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
