@@ -7,45 +7,43 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(ip_filter VERSION 0.0.${COMMON_TBN})
+project(allocator VERSION 0.0.${COMMON_TBN})
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+#find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+
+# для тестов
+add_subdirectory(memory_manager)
+
+
+set(SOURCES
+    main.cpp 
+    memory_manager/src/memory_mgr.cpp
+    my_allocator/my_allocator.hpp
+    my_list/my_list.hpp)
+
+set(HEADERS
+    memory_manager/include/memory_mgr.h)
+
+add_executable(allocator ${SOURCES} ${HEADERS})
+
 
 set(COMPILE_PROPERTIES
-	CXX_STANDARD 14
-   	CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
 )
 
-set(SOURCES main.cpp ip_filter.cpp)
-set(HEADERS ip_filter.h)
-add_executable(ip_filter ${SOURCES} ${HEADERS})
-
-set_target_properties(ip_filter PROPERTIES
+set_target_properties(allocator PROPERTIES
 	${COMPILE_PROPERTIES}
 )
 
-# test_filter
-
-set(SOURCES_TEST test_filter.cpp ip_filter.cpp)
-set(HEADERS_TEST ip_filter.h)
-add_executable(test_filter ${SOURCES_TEST} ${HEADERS_TEST})
-
-set_target_properties(test_filter PROPERTIES
-	${COMPILE_PROPERTIES}
-)
-
-set_target_properties(test_filter PROPERTIES
-    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
-)
-
-target_link_libraries(test_filter
-    ${Boost_LIBRARIES}
+target_include_directories(allocator
+    PRIVATE 
+    "${CMAKE_SOURCE_DIR}/my_allocator" "${CMAKE_SOURCE_DIR}/my_list" "${CMAKE_SOURCE_DIR}/memory_manager/include"
 )
 
 ######
 
-install(TARGETS ip_filter RUNTIME DESTINATION bin)
+install(TARGETS allocator RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -59,4 +57,4 @@ include(CPack)
 
 enable_testing()
 
-add_test(test_filter test_filter)
+add_test(test_memory_manager memory_manager/test/test_memory_mgr)

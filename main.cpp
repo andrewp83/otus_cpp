@@ -1,40 +1,48 @@
-#include <algorithm>
-#include <cassert>
-#include <cstdlib>
 #include <iostream>
-#include <random>
-#include <string>
-#include <vector>
+#include <map>
 
-#include "ip_filter.h"
+#include "my_allocator.hpp"
+#include "my_list.hpp"
+
+static const size_t ALLOCATED_BLOCK_SIZE = 200;
 
 int main(int argc, char const *argv[])
 {
-    try
-    {
-        std::vector<IpAddressV4> ip_pool;
-
-        for(std::string line; std::getline(std::cin, line);) {
-            std::vector<std::string> v = split(line, '\t');
-            ip_pool.emplace_back(v.at(0));
+    auto factorial = [](int num)->int {
+        int fact = 1;
+        for (int i = 2; i <= num; i++) {
+            fact *= i;
         }
+        return fact;
+    };
 
-        // TODO reverse lexicographically sort
-        std::sort(ip_pool.rbegin(), ip_pool.rend());
-        print_ip_pool(ip_pool);
-
-        auto filtered = ip_filter_1(ip_pool, 1);
-        print_ip_pool(filtered);
-
-        filtered = ip_filter_1_2(ip_pool, 46, 70);
-        print_ip_pool(filtered);
-
-        filtered = ip_filter_any(ip_pool, 46);
-        print_ip_pool(filtered);
+    std::map<int, int> test_map;
+    for (auto i = 0; i < 10; i++) {
+        test_map.insert(std::make_pair(i, factorial(i)));
     }
-    catch(const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+    
+    std::map<int, int, std::less<int>, my_allocator<std::pair<const int, int>, ALLOCATED_BLOCK_SIZE>> test_alloc_map;
+    for (auto i = 0; i < 10; i++) {
+        test_alloc_map.insert(std::make_pair(i, factorial(i)));
     }
-
+    
+    std::for_each(test_alloc_map.cbegin(), test_alloc_map.cend(), [](const decltype(test_alloc_map)::value_type& value){
+        std::cout << value.first << " " << value.second << std::endl;
+    });
+    
+    my_list<int> test_list;
+    for (auto i = 0; i < 10; i++) {
+        test_list.push_back(i);
+    }
+    
+    my_list<int, my_allocator<int, ALLOCATED_BLOCK_SIZE>> test_alloc_list;
+    for (auto i = 0; i < 10; i++) {
+        test_alloc_list.push_back(i);
+    }
+    
+    std::for_each(std::begin(test_alloc_list), std::end(test_alloc_list), [](const decltype(test_alloc_list)::value_type& value){
+        std::cout << value << std::endl;
+    });
+    
     return 0;
 }
