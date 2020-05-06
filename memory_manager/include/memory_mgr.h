@@ -1,5 +1,6 @@
 #include <list>
 #include <map>
+#include <memory>
 
 using byte_t = unsigned char;
 

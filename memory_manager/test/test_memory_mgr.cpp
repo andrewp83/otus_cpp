@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(test_memory_block_neighbours)
 
 BOOST_AUTO_TEST_CASE(test_memory_mgr)
 {
-	MemoryMgr mgr(10);
+	MemoryMgr& mgr = MemoryMgr::get_instance(10);
 
 	auto ptr = mgr.memory_alloc(5);
 	BOOST_CHECK_EQUAL(mgr.dump(), "1111100000");
