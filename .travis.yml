@@ -9,6 +9,7 @@ addons:
   apt:
     packages:
       - doxygen
+      - graphviz
 
 script:
 - doxygen Doxyfile  
@@ -28,5 +29,6 @@ deploy:
     skip_cleanup: true
     github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
     keep_history: false
+    local_dir: html
     on:
       branch: homework_04
