@@ -7,36 +7,40 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(helloworld VERSION 0.0.${COMMON_TBN})
+project(print_ip VERSION 0.0.${COMMON_TBN})
 
-add_subdirectory(lib)
+add_executable(print_ip main.cpp print_ip.hpp)
 
-add_executable(helloworld_cli main.cpp)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-set_target_properties(helloworld_cli PROPERTIES
+add_executable(test_print test_print.cpp print_ip.hpp)
+
+set_target_properties(print_ip test_print PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(helloworld_cli
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/includes"
+set_target_properties(test_print PROPERTIES
+    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
 )
 
-target_link_libraries(helloworld_cli PRIVATE
-    helloworld
+target_link_libraries(test_print
+    ${Boost_LIBRARIES}
 )
+
 
 if (MSVC)
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(print_ip PRIVATE
         /W4
     )
 else ()
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(print_ip PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
+install(TARGETS print_ip RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -50,4 +54,4 @@ include(CPack)
 
 enable_testing()
 
-add_test(test_version lib/test/test_version)
+add_test(test_print test_print)
