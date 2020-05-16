@@ -28,4 +28,8 @@ int main(/*int argc, char const *argv[]*/)
     std::list<int> l = {14,18,123,255};
     print_ip(l);
     std::cout << std::endl;
+    
+    auto t = std::make_tuple(12, 34, 45, 56);
+    print_ip(t);
+    std::cout << std::endl;
 }

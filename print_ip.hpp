@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits.h>
 #include <type_traits>
+#include <tuple>
 
 static const char* DOT_SEPARATOR = ".";
 
@@ -38,3 +39,37 @@ typename std::enable_if_t< !std::is_same<T, std::string>::value
     }
 }
 
+template<typename T, size_t N>
+struct tuple_printer : tuple_printer<T, N - 1> {
+    using base = tuple_printer<T, N - 1>;
+        
+    void print(const T& t, std::ostream& output = std::cout) {
+        base::print(t);
+       
+        output << std::get<N - 1>(t);
+        
+//        if (N > 1) {
+//            static_assert(std::is_same<decltype(std::get<N - 1>(t)), decltype(std::get<N - 2>(t))>::value, "types not equal");
+//        }
+        
+       // if (std::tuple_size<T>::value != N)
+        {
+            output << ".";
+        }
+    }
+};
+
+#define UNUSED(x) (void)(x)
+
+template<typename T>
+struct tuple_printer<T, 0> {
+    void print(const T& t) {
+        UNUSED(t);
+    }
+};
+
+template<typename T, size_t n = std::tuple_size<T>::value>
+decltype(std::get<0>(std::declval<T>()), void()) print_ip(const T& addr, std::ostream& output = std::cout) {
+    tuple_printer<decltype(addr), n> t_pr;
+    t_pr.print(addr, output);
+}
