@@ -44,23 +44,17 @@ struct tuple_printer : tuple_printer<T, N - 1> {
     using base = tuple_printer<T, N - 1>;
         
     void print(const T& t, std::ostream& output = std::cout) {
+        static_assert(std::is_same<decltype(std::get<N - 1>(t)), decltype(std::get<N - 2>(t))>::value, "types not equal");
+        
         base::print(t);
-       
-        output << std::get<N - 1>(t);
-        
-//        if (N > 1) {
-//            static_assert(std::is_same<decltype(std::get<N - 1>(t)), decltype(std::get<N - 2>(t))>::value, "types not equal");
-//        }
-        
-        if (std::tuple_size<T>::value != N) {
-            output << ".";
-        }
+        output << "." << std::get<N - 1>(t);
     }
 };
 
 template<typename T>
-struct tuple_printer<T, 0> {
-    void print(const T&) {
+struct tuple_printer<T, 1> {
+    void print(const T& t, std::ostream& output = std::cout) {
+        output << std::get<0>(t);
     }
 };
 
