@@ -1,8 +1,10 @@
-#include "lib/includes/lib.h"
+#include <iostream>
+
+#include "includes/application.h"
 
 int main (int, char **)
 {
-	printHello();
+	Application::getInstance()->run();
 	
     return 0;
 }
