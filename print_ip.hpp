@@ -52,24 +52,20 @@ struct tuple_printer : tuple_printer<T, N - 1> {
 //            static_assert(std::is_same<decltype(std::get<N - 1>(t)), decltype(std::get<N - 2>(t))>::value, "types not equal");
 //        }
         
-       // if (std::tuple_size<T>::value != N)
-        {
+        if (std::tuple_size<T>::value != N) {
             output << ".";
         }
     }
 };
 
-#define UNUSED(x) (void)(x)
-
 template<typename T>
 struct tuple_printer<T, 0> {
-    void print(const T& t) {
-        UNUSED(t);
+    void print(const T&) {
     }
 };
 
 template<typename T, size_t n = std::tuple_size<T>::value>
 decltype(std::get<0>(std::declval<T>()), void()) print_ip(const T& addr, std::ostream& output = std::cout) {
-    tuple_printer<decltype(addr), n> t_pr;
+    tuple_printer<T, n> t_pr;
     t_pr.print(addr, output);
 }
