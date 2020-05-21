@@ -11,14 +11,14 @@ void Model::add_document(DocumentPtr doc) {
 
 DocumentPtr Model::get_current_document() const {
 	static DocumentPtr nullDoc = std::make_shared<Document>();
-	if (current_document < 0 || current_document >= documents.size()) {
+	if (current_document >= documents.size()) {
 		return nullDoc;
 	}
 	return documents[current_document];
 }
 
 void Model::select_document(size_t index) {
-	if (index >= 0 && index < documents.size()) {
+	if (index < documents.size()) {
 		current_document = index;
 	}
 }
