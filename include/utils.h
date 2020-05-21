@@ -7,4 +7,4 @@ namespace utils {
 	
 SaveDocumentFormat get_file_format(const std::string& name);
 	
-};
+}

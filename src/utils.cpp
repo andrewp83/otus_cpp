@@ -7,4 +7,4 @@ SaveDocumentFormat get_file_format(const std::string& /*name*/) {
 	return SaveDocumentFormat::PNG;
 }
 
-};
+}
