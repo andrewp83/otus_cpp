@@ -26,7 +26,7 @@ namespace ui {
 	void select_document(size_t index) {
 		Application::instance()->get_controller().select_document(index);
 	}
-};
+}
 
 int main (int, char **) {
     
