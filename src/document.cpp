@@ -1,5 +1,7 @@
 #include "document.h"
 
+#include <algorithm>
+
 void Document::set_name(const std::string& name) {
 	this->name = name;
 }
