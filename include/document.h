@@ -1,6 +1,10 @@
 #pragma once
 
-#include "shape.h"
+#include "shapes.h"
+
+#include <string>
+#include <vector>
+
 
 class Document {
 public:
@@ -8,7 +12,7 @@ public:
 	const std::string& get_name() const;
 
 	void add_shape(ShapePtr shape);
-	ShapePtr get_shape_by_point(Point pt) const;
+	ShapePtr get_shape_by_point(const Point& pt) const;
 
 	void select_shape(ShapePtr shape);
 	void remove_shape(ShapePtr shape);
@@ -18,7 +22,7 @@ public:
 private:
 	std::vector<ShapePtr> shapes;
 	std::string name;
-	ShapePtr select_shape;
+	ShapePtr selected_shape;
 };
 
 using DocumentPtr = std::shared_ptr<Document>;

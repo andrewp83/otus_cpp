@@ -2,6 +2,8 @@
 
 #include "common_types.h"
 
+#include <memory>
+
 enum class ShapeType {
 	UNKNOWN,
 	TRIANGLE,
@@ -11,6 +13,7 @@ enum class ShapeType {
 class Shape {
 public:
 	Shape(const Point& pt);
+    virtual ~Shape() {}
 
 	virtual void draw() = 0;
 
@@ -20,14 +23,14 @@ protected:
 
 using ShapePtr = std::shared_ptr<Shape>;
 
-class TriangleShape {
+class TriangleShape : public Shape {
 public:
 	TriangleShape(const Point& pt);
 
 	virtual void draw() override;
 };
 
-class RoundShape {
+class RoundShape : public Shape {
 public:
 	RoundShape(const Point& pt);
 

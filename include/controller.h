@@ -1,5 +1,11 @@
 #include "common_types.h"
 
+#include <string>
+
+#include "shapes.h"
+
+class Model;
+
 class Controller {
 public:
 	void create_new_document();
@@ -8,7 +14,12 @@ public:
 
 	void create_shape(ShapeType type, const Point& pt);
 	void select_shape(const Point& pt);
-	void remove_shape(const Point& pt);
+	void remove_shape();
 
 	void select_document(size_t index);
+
+	void set_model(Model* model) { this->model = model; }
+
+private:
+	Model* model;
 };

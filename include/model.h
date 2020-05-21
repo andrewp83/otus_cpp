@@ -12,6 +12,8 @@ public:
 	void select_document(size_t index);
 
 private:
-	std::vector<Document> documents;
+	std::vector<DocumentPtr> documents;
 	size_t current_document {0};
 };
+
+using ModelPtr = std::shared_ptr<Model>;

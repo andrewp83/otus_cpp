@@ -7,36 +7,56 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(helloworld VERSION 0.0.${COMMON_TBN})
+project(editor VERSION 0.0.${COMMON_TBN})
 
-add_subdirectory(lib)
+set(SOURCES src/application.cpp
+            src/controller.cpp
+            src/document.cpp
+            src/model.cpp
+            src/utils.cpp
+            src/shapes/shapes.cpp
+            src/io/file_io.cpp
+            src/io/file_io_factory.cpp
+            main.cpp
+)
 
-add_executable(helloworld_cli main.cpp)
+set(HEADERS include/application.h
+            include/common_types.h
+            include/controller.h
+            include/document.h
+            include/model.h
+            include/utils.h
+            include/io/file_io.h
+            include/io/file_io_factory.h
+            include/shapes/shapes.h)
 
-set_target_properties(helloworld_cli PROPERTIES
+add_executable(editor ${SOURCES} ${HEADERS})
+
+set_target_properties(editor PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(helloworld_cli
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/includes"
+target_include_directories(editor PRIVATE   "${CMAKE_CURRENT_SOURCE_DIR}/include" 
+                                            "${CMAKE_CURRENT_SOURCE_DIR}/include/shapes" 
+                                            "${CMAKE_CURRENT_SOURCE_DIR}/include/io"
 )
 
-target_link_libraries(helloworld_cli PRIVATE
-    helloworld
-)
+#target_link_libraries(helloworld_cli PRIVATE
+#    helloworld
+#)
 
 if (MSVC)
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(editor PRIVATE
         /W4
     )
 else ()
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(editor PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
+install(TARGETS editor RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -48,6 +68,6 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
 
-enable_testing()
+#enable_testing()
 
-add_test(test_version lib/test/test_version)
+#add_test(test_version lib/test/test_version)

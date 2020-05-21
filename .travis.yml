@@ -1,6 +1,6 @@
 language: cpp
 
-if: commit_message =~ /_BUILD!/
+if: commit_message =~ /_BUILD/
 
 before_script:
 - sudo apt-get install libboost-test-dev -y
@@ -31,6 +31,6 @@ deploy:
     skip_cleanup: true
     github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
     keep_history: false
-    local_dir: html
+    local_dir: editor/html
     on:
       branch: homework_05

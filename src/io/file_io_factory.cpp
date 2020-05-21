@@ -6,6 +6,8 @@ FileIOPtr FileIOFactory::create(SaveDocumentFormat format) {
 			return std::make_shared<FileIOPng>();
 		case SaveDocumentFormat::JPEG:
 			return std::make_shared<FileIOJpeg>();
+        case SaveDocumentFormat::UNKNOWN:
+            return nullptr;
 	};
 	return nullptr;
 }

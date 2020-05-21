@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "document.h"
-
+#include "model.h"
+#include "controller.h"
 
 class Application {
 public:
@@ -11,12 +11,10 @@ public:
 
 	void run();
 
-	DocumentPtr get_current_document() const;
-
-	Controller& get_controller() const;
+	Controller& get_controller();
 
 private:
-	Application() = default;
+	Application();
 	Application(const Application&) = default;
 	Application& operator=(const Application&) = default;
 	Application(Application&&) = default;
@@ -25,8 +23,6 @@ private:
 	~Application() = default;
 
 private:
-	std::vector<DocumentPtr> documents;
-	DocumentPtr current_document;
-
+	Model model;
 	Controller controller;
 };
