@@ -7,7 +7,7 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(editor VERSION 0.0.${COMMON_TBN})
+project(matrix VERSION 0.0.${COMMON_TBN})
 
 set(SOURCES src/application.cpp
             src/controller.cpp
@@ -30,14 +30,14 @@ set(HEADERS include/application.h
             include/io/file_io_factory.h
             include/shapes/shapes.h)
 
-add_executable(editor ${SOURCES} ${HEADERS})
+add_executable(matrix ${SOURCES} ${HEADERS})
 
-set_target_properties(editor PROPERTIES
+set_target_properties(matrix PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(editor PRIVATE   "${CMAKE_CURRENT_SOURCE_DIR}/include" 
+target_include_directories(matrix PRIVATE   "${CMAKE_CURRENT_SOURCE_DIR}/include" 
                                             "${CMAKE_CURRENT_SOURCE_DIR}/include/shapes" 
                                             "${CMAKE_CURRENT_SOURCE_DIR}/include/io"
 )
@@ -47,16 +47,16 @@ target_include_directories(editor PRIVATE   "${CMAKE_CURRENT_SOURCE_DIR}/include
 #)
 
 if (MSVC)
-    target_compile_options(editor PRIVATE
+    target_compile_options(matrix PRIVATE
         /W4
     )
 else ()
-    target_compile_options(editor PRIVATE
+    target_compile_options(matrix PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS editor RUNTIME DESTINATION bin)
+install(TARGETS matrix RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
