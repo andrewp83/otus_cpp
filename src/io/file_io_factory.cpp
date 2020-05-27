@@ -1,11 +1,11 @@
 #include "file_io_factory.h"
 
-FileIOPtr FileIOFactory::create(SaveDocumentFormat format) {
+std::unique_ptr<FileIO> FileIOFactory::create(SaveDocumentFormat format) {
 	switch (format) {
 		case SaveDocumentFormat::PNG:
-			return std::make_shared<FileIOPng>();
+			return std::make_unique<FileIOPng>();
 		case SaveDocumentFormat::JPEG:
-			return std::make_shared<FileIOJpeg>();
+			return std::make_unique<FileIOJpeg>();
         case SaveDocumentFormat::UNKNOWN:
             return nullptr;
 	};

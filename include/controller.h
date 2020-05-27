@@ -8,6 +8,8 @@ class Model;
 
 class Controller {
 public:
+    Controller(Model* model) : model(model) {}
+    
 	void create_new_document();
 	void open_document(const std::string& name);
 	void save_document(const std::string& name, SaveDocumentFormat format);
@@ -17,8 +19,6 @@ public:
 	void remove_shape();
 
 	void select_document(size_t index);
-
-	void set_model(Model* model) { this->model = model; }
 
 private:
 	Model* model;

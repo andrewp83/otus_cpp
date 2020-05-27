@@ -7,7 +7,7 @@
 
 class Application {
 public:
-	static Application* instance();
+	static Application& instance();
 
 	void run();
 
@@ -15,8 +15,8 @@ public:
 
 private:
 	Application();
-	Application(const Application&) = default;
-	Application& operator=(const Application&) = default;
+	//Application(const Application&) = default;
+	//Application& operator=(const Application&) = default;
 	Application(Application&&) = default;
 	Application& operator=(Application&&) = default;
 
@@ -24,5 +24,5 @@ private:
 
 private:
 	Model model;
-	Controller controller;
+	std::unique_ptr<Controller> controller;
 };

@@ -16,6 +16,8 @@ public:
     virtual ~Shape() {}
 
 	virtual void draw() = 0;
+    
+    virtual bool is_point_inside(const Point&) const { return true; }
 
 protected:
 	Point pt;
@@ -39,5 +41,5 @@ public:
 
 class ShapeFactory {
 public:
-	static ShapePtr createShape(ShapeType type, Point pt);
+	static std::unique_ptr<Shape> createShape(ShapeType type, Point pt);
 };

@@ -14,9 +14,14 @@ void Document::add_shape(ShapePtr shape) {
 	shapes.push_back(shape);
 }
 
-ShapePtr Document::get_shape_by_point(const Point&) const {
-	static const ShapePtr nullShape = std::make_shared<TriangleShape>(Point());
-	return nullShape;
+ShapePtr Document::get_shape_by_point(const Point& pt) const {
+    auto it = std::find_if(shapes.cbegin(), shapes.cend(), [=](const ShapePtr ptr){
+        return ptr->is_point_inside(pt);
+    });
+    if (it == shapes.cend()) {
+        return nullptr;
+    }
+    return *it;
 }
 
 void Document::select_shape(ShapePtr shape) {

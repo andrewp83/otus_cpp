@@ -19,12 +19,12 @@ void RoundShape::draw() {
 	std::cout << "RoundShape::draw()" << std::endl;
 }
 
-ShapePtr ShapeFactory::createShape(ShapeType type, Point pt) {
+std::unique_ptr<Shape> ShapeFactory::createShape(ShapeType type, Point pt) {
 	switch (type) {
 		case ShapeType::TRIANGLE:
-			return std::make_shared<TriangleShape>(pt);
+			return std::make_unique<TriangleShape>(pt);
 		case ShapeType::ROUND:
-			return std::make_shared<RoundShape>(pt);
+			return std::make_unique<RoundShape>(pt);
         case ShapeType::UNKNOWN:
             return nullptr;
 	};

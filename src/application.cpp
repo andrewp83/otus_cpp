@@ -1,13 +1,13 @@
 #include "application.h"
 #include <iostream>
 
-Application* Application::instance() {
+Application& Application::instance() {
 	static Application* instance = new Application();
-	return instance;
+	return *instance;
 }
 
 Application::Application() {
-	controller.set_model(&model);
+    controller = std::make_unique<Controller>(&model);
 }
 
 void Application::run() {
@@ -15,5 +15,5 @@ void Application::run() {
 }
 
 Controller& Application::get_controller() {
-    return std::ref(controller);
+    return *controller;
 }

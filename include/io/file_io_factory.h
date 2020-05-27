@@ -5,5 +5,5 @@
 
 class FileIOFactory {
 public:
-	static FileIOPtr create(SaveDocumentFormat format);
+	static std::unique_ptr<FileIO> create(SaveDocumentFormat format);
 };
