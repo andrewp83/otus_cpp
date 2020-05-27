@@ -7,30 +7,30 @@ before_script:
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
 
-addons:
-  apt:
-    packages:
-      - doxygen
-      - graphviz
+#addons:
+#  apt:
+#    packages:
+#      - doxygen
+#      - graphviz
 
 script:
-- doxygen Doxyfile
+#- doxygen Doxyfile
 - cmake .
 - cmake --build .
-#- cmake --build . --target test
+- cmake --build . --target test
 - cmake --build . --target package
 
 deploy:
   - provider: script
     skip_cleanup: true
     script:
-    - curl -T editor-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/editor/$TRAVIS_BUILD_NUMBER/editor-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    - curl -T matrix-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/matrix/$TRAVIS_BUILD_NUMBER/matrix-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
     on:
-      branch: homework_05
-  - provider: pages
-    skip_cleanup: true
-    github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-    keep_history: false
-    local_dir: editor_docs/html
-    on:
-      branch: homework_05
+      branch: homework_06
+#  - provider: pages
+#    skip_cleanup: true
+#    github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+#    keep_history: false
+#    local_dir: editor_docs/html
+#    on:
+#      branch: homework_05
