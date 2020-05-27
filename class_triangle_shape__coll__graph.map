@@ -1,0 +1,4 @@
+<map id="TriangleShape" name="TriangleShape">
+<area shape="rect" id="node2" href="$class_shape.html" title="{Shape\n||+ Shape()\l+ ~Shape()\l+ draw()\l+ is_point_inside()\l}" alt="" coords="5,160,145,281"/>
+<area shape="rect" id="node3" href="$struct_point.html" title="{Point\n|+ x\l+ y\l|}" alt="" coords="48,5,103,97"/>
+</map>
