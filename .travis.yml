@@ -4,14 +4,20 @@ if: commit_message =~ /_BUILD/
 
 before_script:
 - sudo apt-get install libgtest-dev -y
+- cd /usr/src/gtest
+- sudo cmake CMakeLists.txt
+- sudo make
+- sudo cp *.a /usr/lib
+- cd $TRAVIS_BUILD_DIR
+
 #- sudo apt-get install libboost-test-dev -y
 #- echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 #- sudo apt-get update -qq
 
-addons:
-  apt:
-    packages:
-      - libgtest-dev
+#addons:
+#  apt:
+#    packages:
+#      - libgtest-dev
 #      - doxygen
 #      - graphviz
 
