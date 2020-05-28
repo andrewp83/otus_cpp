@@ -9,9 +9,11 @@ endif()
 
 project(matrix VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES src/matrix.cpp
+set(SOURCES src/matrix.hpp
             main.cpp
 )
+
+find_package(GTest REQUIRED)
 
 add_executable(matrix ${SOURCES})
 
@@ -20,14 +22,18 @@ set_target_properties(matrix PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-#target_include_directories(matrix PRIVATE   "${CMAKE_CURRENT_SOURCE_DIR}/include" 
-#                                            "${CMAKE_CURRENT_SOURCE_DIR}/include/shapes" 
-#                                            "${CMAKE_CURRENT_SOURCE_DIR}/include/io"
-#)
+target_include_directories(matrix PRIVATE src/)
 
-#target_link_libraries(helloworld_cli PRIVATE
-#    helloworld
-#)
+add_executable(test_matrix test/test_matrix.cpp)
+
+set_target_properties(test_matrix PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
+)
+
+target_include_directories(test_matrix PRIVATE ${GTEST_INCLUDE_DIRS} src/)
+
+target_link_libraries(test_matrix PRIVATE ${GTEST_BOTH_LIBRARIES})
 
 if (MSVC)
     target_compile_options(matrix PRIVATE
@@ -51,6 +57,6 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
 
-#enable_testing()
+enable_testing()
 
-#add_test(test_version lib/test/test_version)
+add_test(test_matrix test_matrix)

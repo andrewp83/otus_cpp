@@ -50,20 +50,18 @@ class Matrix {
         size_t row {0};
         Matrix<T, def>* parent {nullptr};
     };
-
     
 public:
     
     size_t size() const {
         return values.size();
     }
-    
+        
     class Iterator {
     public:
         using value_type = std::tuple<size_t, size_t, T>;
         using reference = value_type&;
         using pointer = value_type*;
-
         
         Iterator(typename ContainerType::const_iterator base_it) : _base_it(base_it) {}
         
