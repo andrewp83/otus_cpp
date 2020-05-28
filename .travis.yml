@@ -2,7 +2,8 @@ language: cpp
 
 if: commit_message =~ /_BUILD/
 
-#before_script:
+before_script:
+- sudo apt-get install libgtest-dev -y
 #- sudo apt-get install libboost-test-dev -y
 #- echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 #- sudo apt-get update -qq
