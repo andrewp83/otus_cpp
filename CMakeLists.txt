@@ -14,6 +14,7 @@ set(SOURCES src/matrix.hpp
 )
 
 find_package(GTest REQUIRED)
+find_package(Threads)
 
 add_executable(matrix ${SOURCES})
 
@@ -33,7 +34,7 @@ set_target_properties(test_matrix PROPERTIES
 
 target_include_directories(test_matrix PRIVATE ${GTEST_INCLUDE_DIRS} src/)
 
-target_link_libraries(test_matrix PRIVATE ${GTEST_BOTH_LIBRARIES})
+target_link_libraries(test_matrix PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
     target_compile_options(matrix PRIVATE
