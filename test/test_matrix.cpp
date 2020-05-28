@@ -46,6 +46,7 @@ TEST(Matrix, Iteration) {
     
     // РЕЗУЛЬТАТ ИМЕННО В ТАКОМ ПОРЯДКЕ ПОТОМУ ЧТО КЛЮЧИ В std::map ОТСОРТИРОВАНЫ
     ASSERT_EQ("234452100100314", ss.str());
+    
 }
 
 TEST(Matrix, MultiAssign) {
