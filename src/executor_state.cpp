@@ -15,6 +15,9 @@ void SimpleExecutorState::parse_command(const std::string& name) {
 	}
 }
 
+
+// BracedExecutorState
+
 void BracedExecutorState::parse_command(const std::string& name) {
 	if (name == "{") {
 		inner_braces++;
