@@ -11,10 +11,7 @@ class CommandPublisher {
 public:
     
 	void add_observer(CommandObserver* obj) {
-		auto it = std::find(observers.begin(), observers.end(), obj);
-		if (it == observers.end()) {
-			observers.push_back(obj);
-		}
+        observers.push_back(obj);
 	}
 
 	void remove_observer(CommandObserver* obj) {
