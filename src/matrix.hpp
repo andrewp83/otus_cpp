@@ -86,11 +86,11 @@ public:
         typename ContainerType::const_iterator _base_it;
     };
     
-    Iterator begin() {
+    Iterator begin() const {
         return Iterator(values.begin());
     }
        
-    Iterator end() {
+    Iterator end() const {
         return Iterator(values.end());
     }
         
