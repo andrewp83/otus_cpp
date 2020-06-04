@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "executor.h"
 #include "file_writer.h"
 #include "console_printer.h"

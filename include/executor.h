@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <queue>
 
 #include "common_types.h"

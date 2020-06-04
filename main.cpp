@@ -6,14 +6,14 @@ void print_usage(std::ostream& out = std::cerr) {
     out << "Usage: bulk <commands number>" << std::endl;
 }
 
-int main (/*int argc, char ** argv*/) {
+int main (int argc, char ** argv) {
     
-//    if (argc != 2) {
-//        print_usage();
-//        return 0; // или не ноль?
-//    }
+    if (argc != 2) {
+        print_usage();
+        return 0; // или не ноль?
+    }
     
-    size_t bulk_size = 4;//std::stoi(argv[1]);
+    size_t bulk_size = std::stoi(argv[1]);
 
     std::unique_ptr<Application> app = std::make_unique<Application>(bulk_size);
     app->run_main_loop();

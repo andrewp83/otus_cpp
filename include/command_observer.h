@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "common_types.h"
 
 class CommandPublisher;
