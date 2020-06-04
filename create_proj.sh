@@ -1,5 +1,5 @@
 #!/bin/sh
 
-rm -rf build
-mkdir build && cd build
+rm -rf build_x
+mkdir build_x && cd build_x
 cmake .. -G Xcode

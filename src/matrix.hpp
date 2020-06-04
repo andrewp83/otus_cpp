@@ -3,17 +3,18 @@
 #include <map>
 #include <algorithm>
 #include <numeric>
+#include <array>
 
 
-template<class T, T def>
+template<class T, T def, size_t N>
 class Matrix {
     
-    using Index = std::pair<size_t, size_t>;
+    using Index = std::array<size_t, N>;
     using ContainerType = std::map<Index, T>;
     
     class ValueProxy {
     public:
-        ValueProxy(Matrix<T, def>* m, Index index) : index(index), parent(m)  {}
+        ValueProxy(Matrix<T, def, N>* m, Index index) : index(index), parent(m)  {}
 
         ValueProxy& operator=(const T& value) {
             if (value == def) {
@@ -34,21 +35,44 @@ class Matrix {
 
     private:
         Index index;
-        Matrix<T, def>* parent {nullptr};
+        Matrix<T, def, N>* parent {nullptr};
     };
     
+    template<size_t D>
     class Indexator {
     public:
-        Indexator(Matrix<T, def>* m, size_t row) : row(row), parent(m) {}
+        Indexator(Matrix<T, def, N>* m, std::array<size_t, N-D+1> rows) : rows(rows), parent(m) {
+            
+        }
+        
+        Indexator<D-1> operator[](size_t col) {
+            //Index index = std::make_pair(row, col);
+            std::array<size_t, N-D+2> index;
+            std::copy(rows.begin(), rows.end(), index.begin());
+            *(index.rbegin()) = col;
+            return Indexator<D-1>(parent, index);
+        }
+        
+    private:
+        std::array<size_t, N-D+1> rows;
+        Matrix<T, def, N>* parent {nullptr};
+    };
+    
+    template<>
+    class Indexator<2> {
+    public:
+        Indexator(Matrix<T, def, N>* m, std::array<size_t, N-1> rows) : rows(rows), parent(m) {}
         
         ValueProxy operator[](size_t col) {
-            Index index = std::make_pair(row, col);
+            Index index;
+            std::copy(rows.begin(), rows.end(), index.begin());
+            *(index.rbegin()) = col;
             return ValueProxy(parent, index);
         }
         
     private:
-        size_t row {0};
-        Matrix<T, def>* parent {nullptr};
+        std::array<size_t, N-1> rows;
+        Matrix<T, def, N>* parent {nullptr};
     };
     
 public:
@@ -94,8 +118,10 @@ public:
         return Iterator(values.end());
     }
         
-    Indexator operator[](size_t row) {
-        return Indexator(this, row);
+    Indexator<N> operator[](size_t row) {
+        std::array<size_t, 1U> part_idx;
+        part_idx[0] = row;
+        return Indexator<N>(this, part_idx);
     }
     
 private:
