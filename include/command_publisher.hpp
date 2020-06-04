@@ -3,24 +3,27 @@
 #include <list>
 #include <set>
 
-class CommandObserver;
+#include "command_observer.h"
+
+//class CommandObserver;
 
 class CommandPublisher {
 public:
-	void subscribe(CommandObserver* obj) {
+    
+	void add_observer(CommandObserver* obj) {
 		auto it = std::find(observers.begin(), observers.end(), obj);
 		if (it == observers.end()) {
 			observers.push_back(obj);
 		}
 	}
 
-	void unsubscribe(CommandObserver* obj) {
+	void remove_observer(CommandObserver* obj) {
         removes.insert(obj);
-        remove_observers();
+        clear_observers();
 	}
     
-    void remove_observers() {
-        if (is_in_notify) return;
+    void clear_observers() {
+        if (observers_locked) return;
         
         auto it = observers.begin();
         while (it != observers.end()) {
@@ -32,21 +35,26 @@ public:
         }
         removes.clear();
     }
+    
+    size_t observers_count() const {
+        return observers.size();
+    }
 
 	template<typename Func, typename... Args>
 	void notify(Func func, Args... args) {
-        is_in_notify = true;
+        observers_locked = true;
         
 		for(auto obs : observers){
 			(obs->*func)(args...);
 		};
         
-        is_in_notify = false;
-        remove_observers();
+        observers_locked = false;
+
+        clear_observers();
 	}
 
 private:
 	std::list<CommandObserver*> observers;
     std::set<CommandObserver*> removes;
-    bool is_in_notify {false};
+    bool observers_locked {false};
 };

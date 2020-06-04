@@ -15,6 +15,8 @@ public:
     
     CommandResult execute_bulk();
 
+    CommandResult get_last_result() const;
+
 private:
 	void add_command(const std::string& str);
 

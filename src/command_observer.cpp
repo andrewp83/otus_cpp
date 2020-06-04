@@ -4,13 +4,13 @@
 void CommandObserver::subscribe(std::shared_ptr<CommandPublisher> publisher) {
     unsubscribe();
 
-	publisher->subscribe(this);
+	publisher->add_observer(this);
     
 	this->publisher = publisher;
 }
 
 void CommandObserver::unsubscribe() {
 	if (auto ptr = publisher.lock()) {
-		ptr->unsubscribe(this);
+		ptr->remove_observer(this);
 	}
 }

@@ -16,7 +16,6 @@ set(SOURCES src/application.cpp
             src/executor_state.cpp
             src/file_writer.cpp
             src/console_printer.cpp
-            main.cpp
 )
 
 set(HEADERS  include/application.h
@@ -33,32 +32,38 @@ set(HEADERS  include/application.h
 find_package(GTest REQUIRED)
 find_package(Threads)
 
-add_executable(bulk ${SOURCES} ${HEADERS})
+add_executable(bulk ${SOURCES} ${HEADERS} main.cpp)
 
-set_target_properties(bulk PROPERTIES
+add_executable(test_bulk ${SOURCES}
+                         ${HEADERS}
+                         test/test_executor.h
+                         test/test_observer.h
+                         test/test_main.cpp
+)
+
+set_target_properties(bulk test_bulk PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
 target_include_directories(bulk PRIVATE src/ include/)
 
-#add_executable(test_matrix test/test_matrix.cpp)
+target_include_directories(test_bulk PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
 
-#set_target_properties(test_matrix PROPERTIES
-#    CXX_STANDARD 14
-#    CXX_STANDARD_REQUIRED ON
-#)
-
-#target_include_directories(test_matrix PRIVATE ${GTEST_INCLUDE_DIRS} src/)
-
-#target_link_libraries(test_matrix PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(test_bulk PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
     target_compile_options(bulk PRIVATE
         /W4
     )
+    target_compile_options(test_bulk PRIVATE
+        /W4
+    )    
 else ()
     target_compile_options(bulk PRIVATE
+        -Wall -Wextra -pedantic -Werror
+    )
+    target_compile_options(test_bulk PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
@@ -75,6 +80,5 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
 
-#enable_testing()
-
-#add_test(test_matrix test_matrix)
+enable_testing()
+add_test(test_matrix test_bulk)

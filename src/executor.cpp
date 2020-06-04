@@ -34,7 +34,9 @@ CommandResult Executor::execute_bulk() {
 		bulk_res += cmd_res;
         if (!commands.empty()) bulk_res += ", ";
 	}
+	
 	notify(&CommandObserver::bulk_executed, bulk_res);
+
     return bulk_res;
 }
 
