@@ -22,13 +22,13 @@ int main (int, char **) {
     
     std::cout << matrix.size() << std::endl;
     
-//    for (const auto& c : matrix) {
-//        size_t i;
-//        size_t j;
-//        int v;
-//        std::tie(i, j, v) = c;
-//        std::cout << "[" << i << "][" << j << "] = " << v << std::endl;
-//    }
+    for (const auto& c : matrix) {
+        size_t i;
+        size_t j;
+        int v;
+        std::tie(i, j, v) = c;
+        std::cout << "[" << i << "][" << j << "] = " << v << std::endl;
+    }
     
     return 0;
 }

@@ -5,6 +5,15 @@
 #include <numeric>
 #include <array>
 
+template<typename T, size_t N, size_t... I>
+auto array_to_tuple_impl(const std::array<T, N>& array, std::index_sequence<I...>) {
+    return std::make_tuple(array[I]...);
+}
+
+template<typename T, size_t N, typename Indices = std::make_index_sequence<N>>
+auto array_to_tuple(const std::array<T, N>& array) {
+    return array_to_tuple_impl(array, Indices{});
+}
 
 template<class T, T def, size_t N>
 class Matrix {
@@ -80,17 +89,14 @@ public:
     size_t size() const {
         return values.size();
     }
-        
+    
     class Iterator {
     public:
-        using value_type = std::tuple<size_t, size_t, T>;
-        using reference = value_type&;
-        using pointer = value_type*;
-        
         Iterator(typename ContainerType::const_iterator base_it) : _base_it(base_it) {}
         
-        value_type operator*() const {
-            return std::make_tuple(_base_it->first.first, _base_it->first.second, _base_it->second);
+        auto operator*() const {
+            auto index_tuple = array_to_tuple(_base_it->first);
+            return std::tuple_cat(index_tuple, std::make_tuple(_base_it->second));
         }
         
         Iterator& operator++() {
