@@ -7,78 +7,43 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(bulk VERSION 0.0.${COMMON_TBN})
+project(timus VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES src/application.cpp
-            src/command.cpp
-            src/command_observer.cpp
-            src/executor.cpp
-            src/executor_state.cpp
-            src/file_writer.cpp
-            src/console_printer.cpp
-)
+add_executable(timus_1196 timus_1196.cpp)
+add_executable(timus_1496 timus_1496.cpp)
+add_executable(timus_1545 timus_1545.cpp)
+add_executable(timus_1837 timus_1837.cpp)
 
-set(HEADERS  include/application.h
-             include/command.h
-             include/command_observer.h
-             include/command_publisher.hpp
-             include/executor.h
-             include/executor_state.h
-             include/file_writer.h
-             include/console_printer.h
-             include/common_types.h
-)
-
-find_package(GTest REQUIRED)
-find_package(Threads)
-
-add_executable(bulk ${SOURCES} ${HEADERS} main.cpp)
-
-add_executable(test_bulk ${SOURCES}
-                         ${HEADERS}
-                         test/test_executor.h
-                         test/test_observer.h
-                         test/test_main.cpp
-)
-
-set_target_properties(bulk test_bulk PROPERTIES
-    CXX_STANDARD 17
+set_target_properties(timus_1196 timus_1496 timus_1545 timus_1837 PROPERTIES
+    CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(bulk PRIVATE src/ include/)
-
-target_include_directories(test_bulk PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
-
-target_link_libraries(test_bulk PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
 if (MSVC)
-    target_compile_options(bulk PRIVATE
+    target_compile_options(timus_1196 PRIVATE
         /W4
     )
-    target_compile_options(test_bulk PRIVATE
+    target_compile_options(timus_1496 PRIVATE
         /W4
-    )    
+    )
+    target_compile_options(timus_1545 PRIVATE
+        /W4
+    )
+    target_compile_options(timus_1837 PRIVATE
+        /W4
+    )
+
 else ()
-    target_compile_options(bulk PRIVATE
+    target_compile_options(timus_1196 PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_bulk PRIVATE
+    target_compile_options(timus_1496 PRIVATE
+        -Wall -Wextra -pedantic -Werror
+    )
+    target_compile_options(timus_1545 PRIVATE
+        -Wall -Wextra -pedantic -Werror
+    )
+    target_compile_options(timus_1837 PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
-
-install(TARGETS bulk RUNTIME DESTINATION bin)
-
-set(CPACK_GENERATOR DEB)
-
-set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-
-set(CPACK_PACKAGE_CONTACT example@example.com)
-
-include(CPack)
-
-enable_testing()
-add_test(test_matrix test_bulk)
