@@ -1,28 +1,27 @@
 #include <algorithm>
 #include <iostream>
-#include "stdio.h"
 #include <vector>
 
 int main (int, char **) {
     uint32_t n;
-    scanf("%d", &n);
+    std::cin >> n;
     
     std::vector<uint32_t> teacher_dates(n);
     for (uint32_t i = 0; i < n; i++) {
-        scanf("%d", &(teacher_dates[i]));
+        std::cin >> teacher_dates[i];
     }
     
-    scanf("%d", &n);
+    std::cin >> n;
     uint32_t matched_dates = 0;
     uint32_t student_date;
     for (uint32_t i = 0; i < n; i++) {
-        scanf("%d", &student_date);
+        std::cin >> student_date;
         if (std::binary_search(teacher_dates.cbegin(), teacher_dates.cend(), student_date)) {
             matched_dates++;
         }
     }
     
-    printf("%d\n", matched_dates);
+    std::cout << matched_dates << std::endl;
     
     return 0;
 }
