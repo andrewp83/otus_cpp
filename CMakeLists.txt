@@ -7,68 +7,57 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(bulk VERSION 0.0.${COMMON_TBN})
+project(bayan VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES src/application.cpp
-            src/command.cpp
-            src/command_observer.cpp
-            src/executor.cpp
-            src/executor_state.cpp
-            src/file_writer.cpp
-            src/console_printer.cpp
-)
-
-set(HEADERS  include/application.h
-             include/command.h
-             include/command_observer.h
-             include/command_publisher.hpp
-             include/executor.h
-             include/executor_state.h
-             include/file_writer.h
-             include/console_printer.h
-             include/common_types.h
-)
+find_package(Boost COMPONENTS program_options filesystem regex REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
 find_package(GTest REQUIRED)
 find_package(Threads)
 
-add_executable(bulk ${SOURCES} ${HEADERS} main.cpp)
+set(SOURCES src/finder.cpp
+            src/common_types.cpp
+)
 
-add_executable(test_bulk ${SOURCES}
+set(HEADERS include/finder.h
+            include/common_types.h
+)
+
+add_executable(bayan ${SOURCES} ${HEADERS} main.cpp)
+
+add_executable(test_bayan ${SOURCES}
                          ${HEADERS}
-                         test/test_executor.h
-                         test/test_observer.h
                          test/test_main.cpp
 )
 
-set_target_properties(bulk test_bulk PROPERTIES
+set_target_properties(bayan test_bayan PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(bulk PRIVATE src/ include/)
+target_include_directories(bayan PRIVATE src/ include/)
+target_include_directories(test_bayan PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
 
-target_include_directories(test_bulk PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
-
-target_link_libraries(test_bulk PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(bayan PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(test_bayan PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
 if (MSVC)
-    target_compile_options(bulk PRIVATE
+    target_compile_options(bayan PRIVATE
         /W4
     )
-    target_compile_options(test_bulk PRIVATE
+    target_compile_options(test_bayan PRIVATE
         /W4
     )    
 else ()
-    target_compile_options(bulk PRIVATE
+    target_compile_options(bayan PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_bulk PRIVATE
+    target_compile_options(test_bayan PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS bulk RUNTIME DESTINATION bin)
+install(TARGETS bayan RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -81,4 +70,4 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 include(CPack)
 
 enable_testing()
-add_test(test_matrix test_bulk)
+add_test(test_bayan test_bayan)
