@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <iostream>
 
-FileData::FileData(const std::string& filename, size_t file_size, size_t block_size)
+FileData::FileData(const std::string& filename, size_t file_size, size_t block_size, HashFunc hash_func)
 : filename(filename)
 , file_size(file_size)
-, block_size(block_size) {
+, block_size(block_size)
+, hash_func(hash_func) {
     
 }
 
@@ -19,6 +20,7 @@ bool FileData::operator<(const FileData& other) const {
         return l < r;
     };
     bool compare = std::lexicographical_compare(begin(), end(), other.begin(), other.end(), comp_less);
+    close_file();
     return compare;
 }
 
@@ -30,10 +32,7 @@ void FileData::read_next_block() const {
     
     char* block_buffer = new char[block_size];
     fread(block_buffer, block_size, 1, fin);
-    FileBlock new_block(block_buffer, block_size);
-    data_blocks.push_back(new_block);
-    
-    close_file();
+    data_blocks.emplace_back(block_buffer, block_size, hash_func);
 }
 
 void FileData::close_file() const {

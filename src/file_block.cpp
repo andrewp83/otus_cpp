@@ -1,11 +1,16 @@
 #include "file_block.h"
 
-#include <cstring>
+FileBlock::FileBlock(char* data, size_t size, HashFunc hash_func)
+: data(data)
+, size(size) {
+    hash_value = HashValue::create(hash_func, data, size);
+}
 
 bool FileBlock::operator<(const FileBlock& other) const {
-    if (size < other.size) {
-        return true;
+    if (size != other.size) {
+        return size < other.size;
     }
-    int cmp = memcmp(data, other.data, size);
-    return cmp < 0;
+    bool cmp = hash_value->less(other.hash_value.get());
+    return cmp;
 }
+

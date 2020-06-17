@@ -6,8 +6,28 @@
 #include "finder.h"
 #include "filter.h"
 
+static std::string expand_user(const std::string& path) {
+    if (path.size() < 1) return path;
+
+    const char* home = getenv("HOME");
+    if (home == NULL) {
+        return path;
+    }
+
+    std::string s = path;
+    if (s[0] == '~') {
+        s = std::string(home) + s.substr(1, s.size() - 1);
+        return s;
+    }
+    
+    return path;
+}
+
 void Finder::set_directories(const std::vector<std::string>& directories) {
-    this->directories = directories;
+    //this->directories = directories;
+    std::transform(directories.begin(), directories.end(), std::back_inserter(this->directories), [](const std::string& s) {
+        return expand_user(s);
+    });
 }
 
 void Finder::set_except_directories(const std::vector<std::string>& directories) {
@@ -25,6 +45,7 @@ void Finder::set_min_size(size_t min_size) {
 
 void Finder::set_file_masks(const std::vector<std::string>& masks) {
     this->file_masks = masks;
+    
     for (auto& mask : file_masks) {
         boost::algorithm::replace_all(mask, ".", "\\.");
         boost::algorithm::replace_all(mask, "?", ".");
@@ -88,7 +109,7 @@ void Finder::process_file(const boost::filesystem::path& path) {
     std::cout << path << '\n';
 
     size_t size = boost::filesystem::file_size(path);
-    FileData file(path.string(), size, block_size);
+    FileData file(path.string(), size, block_size, hash);
 
     std::list<std::string> l = { path.string() };
     auto p = files_map.insert(std::make_pair(file, l));
@@ -109,7 +130,6 @@ bool Finder::is_filtered(const boost::filesystem::path& path) const {
 
 void Finder::print_duplicates(std::ostream& output) {
     for (const auto& _p : files_map) {
-        //output << "size: " << _p.first.get_blocks_size() << ", filename: " << _p.first.get_filename() << std::endl;
         const auto& duplicates = _p.second;
         if (duplicates.size() > 1) {
             for (const auto& filename : duplicates) {
