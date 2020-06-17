@@ -87,7 +87,7 @@ FileData::Iterator& FileData::Iterator::operator++() {
     inner_iterator++;
     
     if (inner_iterator == data->data_blocks.end()) {
-        if (data->data_blocks.size() < data->get_file_size()) {
+        if (data->data_blocks.size() * data->block_size < data->get_file_size()) {
             data->read_next_block();
             inner_iterator = std::prev(data->data_blocks.end());
         } else {

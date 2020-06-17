@@ -148,9 +148,10 @@ void Finder::print_duplicates(std::ostream& output) {
         const auto& duplicates = _p.second;
         if (duplicates.size() > 1) {
             for (const auto& filename : duplicates) {
-                output << filename << std::endl;
+                if (!filename.empty())
+                    output << filename << std::endl;
             }
+            output << std::endl;
         }
-        output << std::endl;
     }
 }
