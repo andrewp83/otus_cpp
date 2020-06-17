@@ -128,6 +128,21 @@ bool Finder::is_filtered(const boost::filesystem::path& path) const {
     return it_broken == file_filters.cend();
 }
 
+Finder::Duplicates Finder::get_duplicates() const {
+    Duplicates result;
+    for (const auto& _p : files_map) {
+        const auto& duplicates = _p.second;
+        if (duplicates.size() > 1) {
+            std::set<std::string> s_duplicates;
+            for (const auto& filename : duplicates) {
+                s_duplicates.insert(filename);
+            }
+            result.push_back(std::move(s_duplicates));
+        }
+    }
+    return result;
+}
+
 void Finder::print_duplicates(std::ostream& output) {
     for (const auto& _p : files_map) {
         const auto& duplicates = _p.second;

@@ -18,6 +18,10 @@ class path;
 class Finder {
 public:
 	void run();
+        
+    using Duplicates = std::vector<std::set<std::string>>;
+    
+    Duplicates get_duplicates() const;
     
     void print_duplicates(std::ostream& output = std::cout);
 

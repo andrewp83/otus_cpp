@@ -30,7 +30,8 @@ void FileData::read_next_block() const {
         fseek(fin, data_blocks.size(), SEEK_SET);
     }
     
-    char* block_buffer = new char[block_size];
+    static char* block_buffer = new char[block_size];
+    
     fread(block_buffer, block_size, 1, fin);
     data_blocks.emplace_back(block_buffer, block_size, hash_func);
 }

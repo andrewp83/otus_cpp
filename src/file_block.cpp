@@ -1,8 +1,8 @@
 #include "file_block.h"
 
 FileBlock::FileBlock(char* data, size_t size, HashFunc hash_func)
-: data(data)
-, size(size) {
+: /*data(data)
+, */size(size) {
     hash_value = HashValue::create(hash_func, data, size);
 }
 

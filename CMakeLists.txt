@@ -18,7 +18,7 @@ find_package(Threads)
 set(SOURCES src/finder.cpp
             src/common_types.cpp
             src/file_data.cpp
-            src/hasher.cpp
+            src/hash_value.cpp
             src/filter.cpp
             src/file_block.cpp
 )
@@ -26,7 +26,7 @@ set(SOURCES src/finder.cpp
 set(HEADERS include/finder.h
             include/common_types.h
             include/file_data.h
-            include/hasher.h
+            include/hash_value.h
             include/filter.h
             include/file_block.h
 )
@@ -34,8 +34,8 @@ set(HEADERS include/finder.h
 add_executable(bayan ${SOURCES} ${HEADERS} main.cpp)
 
 add_executable(test_bayan ${SOURCES}
-                         ${HEADERS}
-                         test/test_main.cpp
+                          ${HEADERS}
+                          test/test_main.cpp
 )
 
 set_target_properties(bayan test_bayan PROPERTIES

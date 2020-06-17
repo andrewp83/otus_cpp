@@ -41,7 +41,9 @@ int main (int argc, char ** argv) {
             auto dirs = vm["dirs"].as<std::vector<std::string>>();
             finder.set_directories(dirs);
         } else {
-            finder.set_directories({"~/projects/otus_cpp/test/data"});
+//            finder.set_directories({"~/projects/otus_cpp/test/data"});
+            std::cout << desc << '\n';
+            return 0;
         }
         
         if (vm.count("except")) {

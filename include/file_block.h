@@ -10,10 +10,10 @@ public:
     
     bool operator<(const FileBlock& other) const;
     
-    std::string dump() { return std::string(data, size); }
+    //std::string dump() { return std::string(data, size); }
 
 private:
-	char* data {nullptr};
+	//char* data {nullptr};
     size_t size {0};
     
     std::shared_ptr<HashValue> hash_value;
