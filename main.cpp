@@ -10,6 +10,23 @@ std::ostream& operator<<(std::ostream& out, const std::vector<std::string> &v) {
 
 namespace po = boost::program_options;
 
+#include <boost/crc.hpp>
+int GetCrc32(const std::string& my_string) {
+    boost::crc_32_type result;
+    result.process_bytes(my_string.data(), my_string.length());
+    return result.checksum();
+}
+
+#include <boost/uuid/detail/md5.hpp>
+void GetMd5(const std::string& my_string) {
+    boost::uuids::detail::md5 hash;
+    boost::uuids::detail::md5::digest_type digest;
+
+    hash.process_bytes(my_string.data(), my_string.size());
+    hash.get_digest(digest);
+    std::cout << digest << std::endl;
+}
+
 int main (int argc, char ** argv) {
     
     try {
@@ -31,7 +48,6 @@ int main (int argc, char ** argv) {
         p.add("dirs", -1);
 
         po::variables_map vm;
-        //po::store(parse_command_line(argc, argv, desc), vm);
         po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
         po::notify(vm);
 
@@ -42,7 +58,7 @@ int main (int argc, char ** argv) {
             auto dirs = vm["dirs"].as<std::vector<std::string>>();
             finder.set_directories(dirs);
         } else {
-            finder.set_directories({"/Users/a.polyakov/projects/"});
+            finder.set_directories({"/Users/a.polyakov/projects/otus_cpp/test/data"});
         }
         
         if (vm.count("except")) {
@@ -73,6 +89,10 @@ int main (int argc, char ** argv) {
         
         finder.run();
         
+        std::cout << std::endl << "=========== RESULT: ===========" << std::endl << std::endl;
+        
+        finder.print_duplicates();
+        
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -80,6 +100,8 @@ int main (int argc, char ** argv) {
 
     // std::unique_ptr<Application> app = std::make_unique<Application>(bulk_size);
     // app->run_main_loop();
+    
+    GetMd5("hello, world!");
     
     return 0;
 }

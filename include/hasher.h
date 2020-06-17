@@ -2,7 +2,7 @@
 
 class Hasher {
 public:
-
+	
 };
 
 

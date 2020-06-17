@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+#include <string>
 
 namespace boost {
 namespace filesystem {
@@ -29,10 +31,16 @@ protected:
 
 class FilterSize : public Filter {
 public:
-	FilterSize(size_t min_size) : size(size) {}
+	FilterSize(size_t min_size) : min_size(min_size) {}
 
 	virtual bool is_satisfied(const boost::filesystem::path& path) const override;
 
 protected:
 	size_t min_size {0};
+};
+
+
+class FilterMac : public Filter {
+public:
+    virtual bool is_satisfied(const boost::filesystem::path& path) const override;
 };

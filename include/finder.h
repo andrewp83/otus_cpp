@@ -1,10 +1,13 @@
 #pragma once
 
+#include <list>
 #include <string>
 #include <unordered_set>
 #include <vector>
 
 #include "common_types.h"
+#include "filter.h"
+#include "file_data.h"
 
 namespace boost {
 namespace filesystem {
@@ -15,6 +18,8 @@ class path;
 class Finder {
 public:
 	void run();
+    
+    void print_duplicates(std::ostream& output = std::cout);
 
 	void set_directories(const std::vector<std::string>& directories);
 	void set_except_directories(const std::vector<std::string>& directories);
@@ -25,6 +30,8 @@ public:
 	void set_hash_type(HashFunc hash);
 
 private:
+    void prepare();
+    
     void process_dir(const std::string& path);
     void process_file(const boost::filesystem::path& path);
     
@@ -38,4 +45,8 @@ private:
 	std::vector<std::string> file_masks;
 	size_t block_size {1};
 	HashFunc hash {HashFunc::MD5};
+    
+    std::list<std::unique_ptr<Filter>> file_filters;
+    
+    std::map<FileData, std::list<std::string>> files_map;
 };

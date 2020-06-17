@@ -4,6 +4,7 @@
 #include <boost/regex.hpp>
 
 #include "finder.h"
+#include "filter.h"
 
 void Finder::set_directories(const std::vector<std::string>& directories) {
     this->directories = directories;
@@ -40,7 +41,17 @@ void Finder::set_hash_type(HashFunc hash) {
     this->hash = hash;
 }
 
+void Finder::prepare() {
+    files_map.clear();
+    
+    file_filters.clear();
+    file_filters.push_back(std::make_unique<FilterMasks>(file_masks));
+    file_filters.push_back(std::make_unique<FilterSize>(min_size));
+    file_filters.push_back(std::make_unique<FilterMac>());
+}
+
 void Finder::run() {
+    prepare();
     std::for_each(directories.cbegin(), directories.cend(), [this](const std::string& path) {
         process_dir(path);
     });
@@ -56,7 +67,7 @@ void Finder::process_dir(const std::string& path) {
 
         switch (fs.type()) {
             case boost::filesystem::regular_file:
-                process_file(begin->path().string());
+                process_file(begin->path());
                 break;
             case boost::filesystem::directory_file:
                 if (level > 0) {
@@ -70,26 +81,41 @@ void Finder::process_dir(const std::string& path) {
 }
 
 void Finder::process_file(const boost::filesystem::path& path) {
-    if (is_filtered(path)) {
-        std::cout << path << '\n';
+    if (!is_filtered(path)) {
+        return;
+    }
+    
+    std::cout << path << '\n';
+
+    size_t size = boost::filesystem::file_size(path);
+    FileData file(path.string(), size, block_size);
+
+    std::list<std::string> l = { path.string() };
+    auto p = files_map.insert(std::make_pair(file, l));
+    if (!p.second) {
+        auto it = p.first;
+        it->second.push_back(path.string());
     }
 }
 
 bool Finder::is_filtered(const boost::filesystem::path& path) const {
     
-    auto it_broken = std::find_if(filters.cbegin(), filters.cend(), [&](const unique_ptr<Filter> filter){
-        return !filter->is_satisfy(path);
+    auto it_broken = std::find_if(file_filters.cbegin(), file_filters.cend(), [&](const std::unique_ptr<Filter>& filter){
+        return !filter->is_satisfied(path);
     });
     
-    bool found = false;
-    for (auto& mask : file_masks) {
-        boost::regex expr(mask);
-        const std::string& filename = path.filename().string();
-        if (boost::regex_match(filename, expr)) {
-            found = true;
-            break;
+    return it_broken == file_filters.cend();
+}
+
+void Finder::print_duplicates(std::ostream& output) {
+    for (const auto& _p : files_map) {
+        //output << "size: " << _p.first.get_blocks_size() << ", filename: " << _p.first.get_filename() << std::endl;
+        const auto& duplicates = _p.second;
+        if (duplicates.size() > 1) {
+            for (const auto& filename : duplicates) {
+                output << filename << std::endl;
+            }
         }
+        output << std::endl;
     }
-    
-    return found;
 }
