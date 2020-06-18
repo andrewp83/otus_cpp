@@ -47,7 +47,7 @@ private:
 class FileData::Iterator {
 public:
     using value_type = HashValuePtr;
-    using iterator_category = std::forward_iterator_tag;
+    //using iterator_category = std::forward_iterator_tag;
     
 	Iterator(const FileData* data, bool is_end = false);
 
