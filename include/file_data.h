@@ -20,7 +20,7 @@ public:
     class Iterator {
     public:
         using value_type = HashValuePtr;
-        typedef std::forward_iterator_tag iterator_category;
+        using iterator_category = std::forward_iterator_tag;
         
         Iterator(const FileData* data, bool is_end = false);
 
@@ -62,3 +62,12 @@ private:
     mutable std::list<HashValuePtr> data_blocks;
 };
 
+namespace std {
+
+template<>
+struct iterator_traits<FileData::Iterator> {
+    using value_type = HashValuePtr;
+    using iterator_category = std::forward_iterator_tag;
+};
+
+}
