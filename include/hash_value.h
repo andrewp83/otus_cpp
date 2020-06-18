@@ -7,9 +7,13 @@
 
 #include "common_types.h"
 
+class HashValue;
+
+using HashValuePtr = std::shared_ptr<HashValue>;
+
 class HashValue {
 public:
-    static std::shared_ptr<HashValue> create(HashFunc func, char* buffer, size_t count);
+    static HashValuePtr create(HashFunc func, char* buffer, size_t count);
     
     virtual bool less(const HashValue* other) const = 0;
     

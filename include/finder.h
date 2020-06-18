@@ -40,11 +40,12 @@ private:
     void process_file(const boost::filesystem::path& path);
     
     bool is_filtered(const boost::filesystem::path& path) const;
+    bool is_dir_excepted(const std::string& name) const;
 
 private:
 	std::vector<std::string> directories;
 	std::unordered_set<std::string> except_directories;
-	size_t level {0};
+	size_t level {1};
 	size_t min_size {1};
 	std::vector<std::string> file_masks;
 	size_t block_size {1};

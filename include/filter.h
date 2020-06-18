@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include <boost/regex.hpp>
+
 namespace boost {
 namespace filesystem {
 class path;
@@ -20,12 +22,13 @@ public:
 
 class FilterMasks : public Filter {
 public:
-	FilterMasks(const std::vector<std::string>& masks) : masks(masks) {}
+    FilterMasks(const std::vector<std::string>& masks);
 
 	virtual bool is_satisfied(const boost::filesystem::path& path) const override;
 
 protected:
 	std::vector<std::string> masks;
+    std::vector<boost::regex> regexp_masks;
 };
 
 

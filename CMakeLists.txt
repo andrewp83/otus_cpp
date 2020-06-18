@@ -20,7 +20,6 @@ set(SOURCES src/finder.cpp
             src/file_data.cpp
             src/hash_value.cpp
             src/filter.cpp
-            src/file_block.cpp
 )
 
 set(HEADERS include/finder.h
@@ -28,7 +27,6 @@ set(HEADERS include/finder.h
             include/file_data.h
             include/hash_value.h
             include/filter.h
-            include/file_block.h
 )
 
 add_executable(bayan ${SOURCES} ${HEADERS} main.cpp)
@@ -64,6 +62,8 @@ else ()
         -Wall -Wextra -pedantic -Werror
     )
 endif()
+
+file(COPY ${CMAKE_SOURCE_DIR}/test/data DESTINATION ${CMAKE_BINARY_DIR} )
 
 install(TARGETS bayan RUNTIME DESTINATION bin)
 

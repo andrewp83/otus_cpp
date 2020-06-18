@@ -4,21 +4,25 @@
 #include <list>
 #include <string>
 
-#include "file_block.h"
+#include "hash_value.h"
 
 class FileData {
 public:
     FileData() {}
 	FileData(const std::string& filename, size_t file_size, size_t block_size, HashFunc hash_func);
+    
+    FileData(const FileData&) = delete;
+    
+    FileData(FileData&& other);
+    
     ~FileData();
 
 	class Iterator;
 
 	bool operator<(const FileData& other) const;
 
-	size_t get_file_size() const { return file_size; }
-    size_t get_blocks_size() const { return data_blocks.size(); }
-    const std::string& get_filename() const { return filename; }
+    size_t get_file_size() const { return file_size; }
+    size_t get_read_size() const;
 
 	Iterator begin() const;
 	Iterator end() const;
@@ -33,18 +37,20 @@ private:
     size_t block_size {0};
     HashFunc hash_func;
     
+    char* block_buffer {nullptr};
+    
     //std::fstream fin;
     mutable FILE* fin {nullptr};
-	mutable std::list<FileBlock> data_blocks;
+    mutable std::list<HashValuePtr> data_blocks;
 };
 
 class FileData::Iterator {
 public:
-    using value_type = FileBlock;
+    using value_type = HashValuePtr;
     
 	Iterator(const FileData* data, bool is_end = false);
 
-	FileBlock& operator*() const;
+	HashValuePtr operator*() const;
 
 	bool operator==(const Iterator& other) const;
     bool operator!=(const Iterator& other) const;
@@ -53,6 +59,6 @@ public:
 
 private:
 	const FileData* data {nullptr};
-	std::list<FileBlock>::iterator inner_iterator;
+	std::list<HashValuePtr>::iterator inner_iterator;
     bool is_end {false};
 };

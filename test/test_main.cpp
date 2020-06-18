@@ -64,6 +64,51 @@ TEST(Finder, RecursiveDirs) {
     ASSERT_TRUE(dups[1].count("data/test_3/test_3_1/timus_1196_.cpp"));
 }
 
+TEST(Finder, MinSize) {
+    Finder f;
+    f.set_directories({ "data/test_1", "data/test_2" });
+    f.set_min_size(100);
+     
+    f.run();
+     
+    auto dups = f.get_duplicates();
+    
+    ASSERT_EQ(dups.size(), 1);
+    
+    ASSERT_EQ(dups[0].size(), 3);
+    ASSERT_TRUE(dups[0].count("data/test_1/test_main.cpp"));
+    ASSERT_TRUE(dups[0].count("data/test_1/test_main_copy.cpp"));
+    ASSERT_TRUE(dups[0].count("data/test_1/test_main_copy2.cpp"));
+}
+
+TEST(Finder, Regex) {
+    Finder f;
+    f.set_directories({ "data/test_2", "data/test_3" });
+    f.set_file_masks({"*6*.cpp", "*.sh"});
+     
+    f.run();
+     
+    auto dups = f.get_duplicates();
+    
+    ASSERT_EQ(dups.size(), 1);
+    
+    ASSERT_EQ(dups[0].size(), 2);
+    ASSERT_TRUE(dups[0].count("data/test_3/timus_1196.cpp"));
+    ASSERT_TRUE(dups[0].count("data/test_3/test_3_1/timus_1196_.cpp"));
+}
+
+TEST(Finder, ExceptDir) {
+    Finder f;
+    f.set_directories({ "data/test_2", "data/test_3" });
+    f.set_except_directories({"data/test_3/test_3_1"});
+     
+    f.run();
+     
+    auto dups = f.get_duplicates();
+    
+    ASSERT_EQ(dups.size(), 0);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

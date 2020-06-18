@@ -24,7 +24,7 @@ static std::string expand_user(const std::string& path) {
 }
 
 void Finder::set_directories(const std::vector<std::string>& directories) {
-    //this->directories = directories;
+    
     std::transform(directories.begin(), directories.end(), std::back_inserter(this->directories), [](const std::string& s) {
         return expand_user(s);
     });
@@ -79,6 +79,11 @@ void Finder::run() {
 }
 
 void Finder::process_dir(const std::string& path) {
+    
+    if (is_dir_excepted(path)) {
+        return;
+    }
+    
     boost::filesystem::directory_iterator begin(path);
     boost::filesystem::directory_iterator end;
 
@@ -106,17 +111,21 @@ void Finder::process_file(const boost::filesystem::path& path) {
         return;
     }
     
-    std::cout << path << '\n';
+    //std::cout << path << '\n';
 
     size_t size = boost::filesystem::file_size(path);
     FileData file(path.string(), size, block_size, hash);
 
-    std::list<std::string> l = { path.string() };
-    auto p = files_map.insert(std::make_pair(file, l));
+    std::list<std::string> duplicates = { path.string() };
+    auto p = files_map.emplace(std::move(file), duplicates);
     if (!p.second) {
         auto it = p.first;
         it->second.push_back(path.string());
     }
+}
+
+bool Finder::is_dir_excepted(const std::string &name) const {
+    return except_directories.count(name) > 0;
 }
 
 bool Finder::is_filtered(const boost::filesystem::path& path) const {

@@ -1,6 +1,6 @@
 #include "hash_value.h"
 
-std::shared_ptr<HashValue> HashValue::create(HashFunc func, char* buffer, size_t count) {
+HashValuePtr HashValue::create(HashFunc func, char* buffer, size_t count) {
     if (func == HashFunc::CRC32) {
         return std::make_shared<HashValueCrc32>(buffer, count);
     } else if (func == HashFunc::MD5) {
