@@ -12,8 +12,8 @@
 namespace boost {
 namespace filesystem {
 class path;
-};
-};
+}
+}
 
 class Finder {
 public:

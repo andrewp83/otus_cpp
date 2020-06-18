@@ -8,8 +8,8 @@
 namespace boost {
 namespace filesystem {
 class path;
-};
-};
+}
+}
 
 
 class Filter {
