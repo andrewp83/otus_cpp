@@ -17,7 +17,25 @@ public:
     
     ~FileData();
 
-	class Iterator;
+    class Iterator {
+    public:
+        using value_type = HashValuePtr;
+        typedef std::forward_iterator_tag iterator_category;
+        
+        Iterator(const FileData* data, bool is_end = false);
+
+        HashValuePtr operator*() const;
+
+        bool operator==(const Iterator& other) const;
+        bool operator!=(const Iterator& other) const;
+
+        Iterator& operator++();
+
+    private:
+        const FileData* data {nullptr};
+        std::list<HashValuePtr>::iterator inner_iterator;
+        bool is_end {false};
+    };
 
 	bool operator<(const FileData& other) const;
 
@@ -44,22 +62,3 @@ private:
     mutable std::list<HashValuePtr> data_blocks;
 };
 
-class FileData::Iterator {
-public:
-    using value_type = HashValuePtr;
-    typedef std::forward_iterator_tag iterator_category;
-    
-	Iterator(const FileData* data, bool is_end = false);
-
-	HashValuePtr operator*() const;
-
-	bool operator==(const Iterator& other) const;
-    bool operator!=(const Iterator& other) const;
-
-	Iterator& operator++();
-
-private:
-	const FileData* data {nullptr};
-	std::list<HashValuePtr>::iterator inner_iterator;
-    bool is_end {false};
-};
