@@ -24,7 +24,7 @@ static std::string expand_user(const std::string& path) {
 }
 
 void Finder::set_directories(const std::vector<std::string>& directories) {
-    
+    this->directories.clear();
     std::transform(directories.begin(), directories.end(), std::back_inserter(this->directories), [](const std::string& s) {
         return expand_user(s);
     });
@@ -32,7 +32,9 @@ void Finder::set_directories(const std::vector<std::string>& directories) {
 
 void Finder::set_except_directories(const std::vector<std::string>& directories) {
     except_directories.clear();
-    std::copy(directories.begin(), directories.end(), std::inserter(except_directories, except_directories.end()));
+    std::transform(directories.begin(), directories.end(), std::inserter(except_directories, except_directories.end()), [](const std::string& s) {
+        return expand_user(s);
+    });
 }
 
 void Finder::set_level(size_t level) {
@@ -109,7 +111,7 @@ void Finder::process_dir(const std::string& path) {
 void Finder::process_file(const boost::filesystem::path& path) {
     if (!is_filtered(path)) {
         return;
-    } 
+    }
     
     //std::cout << path << '\n';
 
