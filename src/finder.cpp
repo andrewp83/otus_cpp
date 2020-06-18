@@ -109,7 +109,7 @@ void Finder::process_dir(const std::string& path) {
 void Finder::process_file(const boost::filesystem::path& path) {
     if (!is_filtered(path)) {
         return;
-    }
+    } 
     
     //std::cout << path << '\n';
 
