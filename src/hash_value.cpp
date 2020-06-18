@@ -25,18 +25,17 @@ bool HashValueCrc32::less(const HashValue* other) const {
 
 // MD5 HASH
     
-HashValueMd5::HashValueMd5(char*/* data*/, size_t /*size*/) {
-//    boost::uuids::detail::md5 hash;
-//
-//    hash.process_bytes(data, size);
-//    hash.get_digest(digest);
+HashValueMd5::HashValueMd5(char* data, size_t size) {
+   boost::uuids::detail::md5 hash;
+
+   hash.process_bytes(data, size);
+   hash.get_digest(digest);
 }
 
-bool HashValueMd5::less(const HashValue* /*other*/) const {
-//    bool res = std::lexicographical_compare(std::begin(digest),
-//                                            std::end(digest),
-//                                            std::begin(((HashValueMd5*)other)->digest),
-//                                            std::end(((HashValueMd5*)other)->digest));
-//    return res;
-    return true;
+bool HashValueMd5::less(const HashValue* other) const {
+    bool res = std::lexicographical_compare(std::begin(digest),
+                                           std::end(digest),
+                                           std::begin(((HashValueMd5*)other)->digest),
+                                           std::end(((HashValueMd5*)other)->digest));
+    return res;
 }

@@ -5,6 +5,8 @@
 #include <boost/crc.hpp>
 //#include <boost/uuid/detail/md5.hpp>
 
+#include "md5.hpp"
+
 #include "common_types.h"
 
 class HashValue;
@@ -28,8 +30,7 @@ public:
     virtual bool less(const HashValue* other) const override;
     
 private:
-    //boost::uuids::detail::md5::digest_type digest;
-    //boost::crc_32_type::value_type digest;
+    boost::uuids::detail::md5::digest_type digest;
 };
 
 

@@ -27,6 +27,7 @@ set(HEADERS include/finder.h
             include/file_data.h
             include/hash_value.h
             include/filter.h
+            include/md5.hpp
 )
 
 add_executable(bayan ${SOURCES} ${HEADERS} main.cpp)
