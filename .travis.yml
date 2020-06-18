@@ -4,7 +4,10 @@ if: commit_message =~ /_BUILD/
 
 before_script:
 - sudo apt-get install libgtest-dev -y
-- sudo apt-get install libboost-all-dev -y
+#- sudo apt-get install libboost-all-dev -y
+- sudo apt-get install libboost-program-options-dev -y
+- sudo apt-get install libboost-filesystem-dev -y
+- sudo apt-get install libboost-regex-dev -y
 - sudo apt-get install cmake -y
 - cd /usr/src/gtest
 - sudo cmake CMakeLists.txt
