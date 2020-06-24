@@ -9,8 +9,17 @@ Executor::Executor(size_t bulk_size)
 	current_state = simple_state;
 }
 
-void Executor::parse_command(const std::string& name) {
+bool Executor::parse_command(const std::string& name) {
+    
+    if (name == "exit") {
+        execute_bulk();
+        notify(&CommandObserver::command_process_stopped);
+        return true;
+    }
+
 	current_state->parse_command(name);
+    
+    return false;
 }
 
 void Executor::add_command(const std::string& str) {
@@ -21,18 +30,16 @@ void Executor::add_command(const std::string& str) {
 	commands.push(std::move(cmd));
 }
 
-CommandResult Executor::execute_bulk() {
-    CommandResult bulk_res;
+BulkResult Executor::execute_bulk() {
+    BulkResult bulk_res;
     
     if (commands.empty()) return bulk_res;
     
-	bulk_res = "bulk: ";
 	while (!commands.empty()) {
         std::unique_ptr<Command> cmd = std::move(commands.front());
         commands.pop();
 		CommandResult cmd_res = cmd->execute();
-		bulk_res += cmd_res;
-        if (!commands.empty()) bulk_res += ", ";
+        bulk_res.command_results.push_back(cmd_res);
 	}
 	
 	notify(&CommandObserver::bulk_executed, bulk_res);

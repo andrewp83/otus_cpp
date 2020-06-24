@@ -11,5 +11,5 @@
 
 class ConsolePrinter : public CommandObserver {
 public:
-    void bulk_executed(const CommandResult& result) override;
+    void bulk_executed(const BulkResult& result) override;
 };

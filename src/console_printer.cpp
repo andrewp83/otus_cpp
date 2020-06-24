@@ -9,6 +9,6 @@
 
 #include "console_printer.h"
 
-void ConsolePrinter::bulk_executed(const CommandResult& result) {
-    std::cout << result << std::endl;
+void ConsolePrinter::bulk_executed(const BulkResult& result) {
+    std::cout << result.to_string() << std::endl;
 }

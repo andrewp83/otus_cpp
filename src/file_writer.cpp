@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-void FileWriter::bulk_executed(const CommandResult& result) {
+void FileWriter::bulk_executed(const BulkResult& result) {
 	// save to file
     const std::string& filename = create_filename();
     std::fstream fs(filename, fs.out);
@@ -11,7 +11,7 @@ void FileWriter::bulk_executed(const CommandResult& result) {
         std::cerr << "failed to open " << filename << std::endl;
         return;
     }
-    fs << result;
+    fs << result.to_string();
 }
 
 std::string FileWriter::create_filename() const {

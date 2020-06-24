@@ -7,12 +7,12 @@
 
 class TestObserver : public CommandObserver {
 public:
-    void bulk_executed(const CommandResult& result) override {
+    void bulk_executed(const BulkResult& result) override {
     	last_results.push(result);
     }
 
-    CommandResult pop_last_result() {
-    	CommandResult res;
+    BulkResult pop_last_result() {
+    	BulkResult res;
     	if (!last_results.empty()) {
     		res = last_results.front();
             last_results.pop();
@@ -21,7 +21,7 @@ public:
     }
 
 private:
-	std::queue<CommandResult> last_results;
+	std::queue<BulkResult> last_results;
 
 };
 
@@ -66,7 +66,7 @@ TEST_F(ExecutorTest, Simple) {
 	};
 	set_executor_commands();
 
-	CommandResult res = observer->pop_last_result();
+	BulkResult res = observer->pop_last_result();
 	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3, cmd4");
 }
 
@@ -88,7 +88,7 @@ TEST_F(ExecutorTest, Bulk) {
 	};
 	set_executor_commands();
 
-	CommandResult res = observer->pop_last_result();
+	BulkResult res = observer->pop_last_result();
 	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3, cmd4");
 	res = observer->pop_last_result();
 	ASSERT_EQ(res, "bulk: cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
@@ -117,7 +117,7 @@ TEST_F(ExecutorTest, NestedBulks) {
 	};
 	set_executor_commands();
 
-	CommandResult res = observer->pop_last_result();
+	BulkResult res = observer->pop_last_result();
 	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3");
 	res = observer->pop_last_result();
 	ASSERT_EQ(res, "bulk: cmd4, cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
@@ -130,7 +130,7 @@ TEST_F(ExecutorTest, EmptyBulk) {
 	};
 	set_executor_commands();
 
-	CommandResult res = observer->pop_last_result();
+	BulkResult res = observer->pop_last_result();
 	ASSERT_EQ(res, "");
 
 }

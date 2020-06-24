@@ -20,7 +20,7 @@ class PrintCommand : public Command {
 public:
     PrintCommand(const std::string& name) : Command(name) {}
     
-	virtual CommandResult execute();
+	virtual CommandResult execute() override;
 };
 
 class CommandCreator {

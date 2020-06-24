@@ -6,7 +6,7 @@
 
 class Test2Observer : public CommandObserver {
 public:
-    void bulk_executed(const CommandResult& res) override {
+    void bulk_executed(const BulkResult& res) override {
         messages.push(res);
     }
     

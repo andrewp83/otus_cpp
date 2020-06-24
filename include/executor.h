@@ -12,11 +12,11 @@ class Executor : public CommandPublisher {
 public:
 	Executor(size_t bulk_size);
 
-	void parse_command(const std::string& name);
+	bool parse_command(const std::string& name);
     
-    CommandResult execute_bulk();
+    BulkResult execute_bulk();
 
-    CommandResult get_last_result() const;
+    BulkResult get_last_result() const;
 
 private:
 	void add_command(const std::string& str);

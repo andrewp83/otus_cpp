@@ -14,7 +14,9 @@ public:
 	void subscribe(std::shared_ptr<CommandPublisher> publisher);
 	void unsubscribe();
 
-	virtual void bulk_executed(const CommandResult& result) = 0;
+    
+    virtual void bulk_executed(const BulkResult& /*result*/) {}
+    virtual void command_process_stopped() {}
 
 protected:
 	std::weak_ptr<CommandPublisher> publisher;
