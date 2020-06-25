@@ -17,6 +17,11 @@ struct BulkResult {
     
     std::string to_string() const {
         std::string result;
+        
+        if (command_results.empty()) {
+            return result;
+        }
+        
         for (const auto& cmd_res : command_results) {
             if (!result.empty()) result += ", ";
             result += cmd_res;
@@ -26,6 +31,12 @@ struct BulkResult {
 };
 
 struct WorkerStats {
+    
+    std::string to_string() const {
+        return std::to_string(bulks_count) + " bulks, " + std::to_string(commands_count) + " commands";
+    }
+    
     size_t bulks_count {0};
     size_t commands_count {0};
 };
+

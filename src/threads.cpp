@@ -21,7 +21,7 @@ void CommandWorker::process_command_result(const BulkResult& result) {
 void CommandWorker::run() {
     while (!is_stopped) {
         std::unique_lock<std::mutex> lk(manager.get_mutex());
-        manager.get_cv().wait(lk, [this]{return !command_results.empty() || is_stopped;});
+        manager.get_cv().wait(lk, [this]{ return !command_results.empty() || is_stopped; });
         log_command_result();
     }
 }
@@ -53,6 +53,9 @@ LoggerWorker::LoggerWorker(ThreadManager& manager, std::ostream& output)
 }
 
 void LoggerWorker::process_command_result(const BulkResult& result) {
+    
+    CommandWorker::process_command_result(result);
+    
     output << result.to_string() << std::endl;
 }
 
@@ -68,6 +71,9 @@ FileWorker::FileWorker(ThreadManager& manager, std::size_t suffix)
 }
 
 void FileWorker::process_command_result(const BulkResult& result) {
+    
+    CommandWorker::process_command_result(result);
+    
     // save to file
     const std::string& filename = create_filename();
     std::fstream fs(filename, fs.out);

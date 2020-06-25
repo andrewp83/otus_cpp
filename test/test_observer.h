@@ -7,7 +7,7 @@
 class Test2Observer : public CommandObserver {
 public:
     void bulk_executed(const BulkResult& res) override {
-        messages.push(res);
+        messages.push(res.to_string());
     }
     
     std::string message() {
@@ -23,7 +23,9 @@ protected:
 class TestPublisher : public CommandPublisher {
 public:
     void send_notify(const std::string& msg) {
-        notify(&CommandObserver::bulk_executed, msg);
+        BulkResult res;
+        res.command_results.push_back(msg);
+        notify(&CommandObserver::bulk_executed, res);
     }
 };
 
@@ -38,8 +40,8 @@ TEST(Publisher, Notification) {
     
     publisher->send_notify("hello1");
 
-    ASSERT_EQ(observer1->message(), "hello1");
-    ASSERT_EQ(observer2->message(), "hello1");
+    ASSERT_EQ(observer1->message(), "bulk: hello1");
+    ASSERT_EQ(observer2->message(), "bulk: hello1");
 }
 
 TEST(Publisher, ObserversDeleted) {
@@ -59,7 +61,7 @@ TEST(Publisher, ObserversDeleted) {
     ASSERT_EQ(publisher->observers_count(), 1U);
     
     publisher->send_notify("!!!");
-    ASSERT_EQ(observer2->message(), "!!!");
+    ASSERT_EQ(observer2->message(), "bulk: !!!");
     
     delete observer2;
     

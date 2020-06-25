@@ -12,7 +12,9 @@
 
 class ThreadManager : public CommandObserver {
 public:
-    ThreadManager();
+    ThreadManager(std::ostream& output = std::cout);
+    
+    void print_stats();
     
     // CommandObserver
     void bulk_executed(const BulkResult& result) override;
@@ -23,7 +25,6 @@ public:
     
 private:
     void stop_all();
-    void print_stats();
     
 private:
     std::unique_ptr<CommandWorker> log_worker;
@@ -32,4 +33,6 @@ private:
     
     std::condition_variable cv;
     std::mutex m;
+    
+    std::ostream& output;
 };

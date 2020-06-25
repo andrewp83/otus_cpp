@@ -18,6 +18,7 @@ set(SOURCES src/application.cpp
             src/console_printer.cpp
             src/thread_manager.cpp
             src/threads.cpp
+            src/stats_manager.cpp
 )
 
 set(HEADERS  include/application.h
@@ -31,6 +32,7 @@ set(HEADERS  include/application.h
              include/common_types.h
              include/thread_manager.h
              include/threads.h
+             include/stats_manager.h
 )
 
 find_package(GTest REQUIRED)

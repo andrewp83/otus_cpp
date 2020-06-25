@@ -16,6 +16,8 @@ bool Executor::parse_command(const std::string& name) {
         notify(&CommandObserver::command_process_stopped);
         return true;
     }
+    
+    notify(&CommandObserver::command_read, name);
 
 	current_state->parse_command(name);
     

@@ -11,6 +11,9 @@ Application::Application(size_t bulk_size) {
     
     thread_manager = std::make_unique<ThreadManager>();
     thread_manager->subscribe(executor);
+    
+    stats_manager = std::make_unique<StatsManager>();
+    stats_manager->subscribe(executor);
 }
 
 void Application::run_main_loop() {
@@ -19,5 +22,6 @@ void Application::run_main_loop() {
     while (!is_exit && std::cin >> cmd_str) {
         is_exit = executor->parse_command(cmd_str);
     }
-    // И где-то тут обработать и показать статистику
+    stats_manager->print_stats();
+    thread_manager->print_stats();
 }

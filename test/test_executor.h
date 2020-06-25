@@ -1,9 +1,13 @@
 #include <gtest/gtest.h>
 
 #include <queue>
+#include <thread>
+#include <chrono>
 
 #include "command_observer.h"
 #include "executor.h"
+#include "thread_manager.h"
+//#include "stats_manager.h"
 
 class TestObserver : public CommandObserver {
 public:
@@ -67,7 +71,7 @@ TEST_F(ExecutorTest, Simple) {
 	set_executor_commands();
 
 	BulkResult res = observer->pop_last_result();
-	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3, cmd4");
+    ASSERT_EQ(res.to_string(), "bulk: cmd1, cmd2, cmd3, cmd4");
 }
 
 TEST_F(ExecutorTest, Bulk) {
@@ -89,11 +93,11 @@ TEST_F(ExecutorTest, Bulk) {
 	set_executor_commands();
 
 	BulkResult res = observer->pop_last_result();
-	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3, cmd4");
+    ASSERT_EQ(res.to_string(), "bulk: cmd1, cmd2, cmd3, cmd4");
 	res = observer->pop_last_result();
-	ASSERT_EQ(res, "bulk: cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
+    ASSERT_EQ(res.to_string(), "bulk: cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
 	res = observer->pop_last_result();
-	ASSERT_EQ(res, "");
+    ASSERT_EQ(res.to_string(), "");
 }
 
 TEST_F(ExecutorTest, NestedBulks) {
@@ -117,11 +121,11 @@ TEST_F(ExecutorTest, NestedBulks) {
 	};
 	set_executor_commands();
 
-	BulkResult res = observer->pop_last_result();
+    std::string res = observer->pop_last_result().to_string();
 	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3");
-	res = observer->pop_last_result();
+    res = observer->pop_last_result().to_string();
 	ASSERT_EQ(res, "bulk: cmd4, cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
- 	res = observer->pop_last_result();
+    res = observer->pop_last_result().to_string();
 	ASSERT_EQ(res, "");
 }
 
@@ -131,57 +135,73 @@ TEST_F(ExecutorTest, EmptyBulk) {
 	set_executor_commands();
 
 	BulkResult res = observer->pop_last_result();
-	ASSERT_EQ(res, "");
+    ASSERT_EQ(res.to_string(), "");
 
 }
 
 
-// TEST(Matrix, Creation) {
-//     // Arrange
-//     Matrix<int, -1> matrix;
-    
-//     // Act
-    
-//     // Assert
-//     ASSERT_EQ(matrix.size(), 0);
-// }
+// ТЕСТ МНОГОПОТОЧНОСТИ
 
-// TEST(Matrix, ReturnDefault) {
-//     Matrix<int, -1> matrix;
-//     auto a = matrix[0][0];
-//     ASSERT_EQ(a, -1);
-//     ASSERT_EQ(matrix.size(), 0);
-// }
+class MultiThreadsTest : public ::testing::Test {
+protected:
+    virtual ~MultiThreadsTest() {
+        
+    }
 
-// TEST(Matrix, Assign) {
-//     Matrix<int, -1> matrix;
-//     matrix[100][100] = 314;
-//     ASSERT_EQ(matrix[100][100], 314);
-// }
+    virtual void SetUp() {
+        executor = std::make_shared<Executor>(4);
+        
+        threads_mgr = std::make_shared<ThreadManager>(ss_output);
+        threads_mgr->subscribe(executor);
+    }
 
-// TEST(Matrix, Iteration) {
-    
-//     Matrix<int, -1> matrix;
-    
-//     matrix[100][100] = 314;
-//     matrix[23][44] = 52;
-    
-//     std::stringstream ss;
-//     for(auto c : matrix) {
-//         int x;
-//         int y;
-//         int v;
-//         std::tie(x, y, v) = c;
-//         ss << x << y << v;
-//     }
-    
-//     // РЕЗУЛЬТАТ ИМЕННО В ТАКОМ ПОРЯДКЕ ПОТОМУ ЧТО КЛЮЧИ В std::map ОТСОРТИРОВАНЫ
-//     ASSERT_EQ("234452100100314", ss.str());
-    
-// }
+    virtual void TearDown() {
+        // ???
+    }
 
-// TEST(Matrix, MultiAssign) {
-//     Matrix<int, -1> matrix;
-//     ((matrix[100][100] = 314) = 0) = 217;
-//     ASSERT_EQ(matrix[100][100], 217);
-// }
+
+    void set_executor_commands() {
+        for (const auto& cmd : commands) {
+            executor->parse_command(cmd);
+        }
+    }
+
+    std::vector<std::string> commands;
+    
+    std::stringstream ss_output;
+
+    std::shared_ptr<Executor> executor;
+    //std::shared_ptr<TestObserver> observer;
+    std::shared_ptr<ThreadManager> threads_mgr;
+};
+
+TEST_F(MultiThreadsTest, Base) {
+    commands = {
+        "{",
+        "cmd1",
+        "cmd2",
+        "{",
+        "cmd3",
+        "cmd4",
+        "}",
+        "cmd5",
+        "cmd6",
+        "}",
+        "exit",
+    };
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    
+    set_executor_commands();
+    
+    std::stringstream ss_expected;
+    ss_expected << "bulk: cmd1, cmd2, cmd3, cmd4, cmd5, cmd6" << std::endl;
+    ss_expected << "log thread: 1 bulks, 6 commands" << std::endl;
+    ss_expected << "file1 thread_1: 1 bulks, 6 commands" << std::endl;
+    ss_expected << "file1 thread_2: 0 bulks, 0 commands" << std::endl;
+
+    threads_mgr->print_stats();
+
+    ASSERT_EQ(ss_output.str(), ss_expected.str());
+    
+}
