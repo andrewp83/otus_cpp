@@ -1,6 +1,7 @@
 #include "thread_manager.h"
 
 #include <iostream>
+#include <algorithm>
 
 ThreadManager::ThreadManager(std::ostream& output)
 : output(output) {
