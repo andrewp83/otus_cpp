@@ -36,7 +36,7 @@ set(HEADERS  include/application.h
 )
 
 find_package(GTest REQUIRED)
-find_package(Threads)
+find_package(Threads REQUIRED)
 
 add_executable(bulkmt ${SOURCES} ${HEADERS} main.cpp)
 
@@ -53,9 +53,10 @@ set_target_properties(bulkmt test_bulkmt PROPERTIES
 )
 
 target_include_directories(bulkmt PRIVATE src/ include/)
+target_link_libraries(bulkmt PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+
 
 target_include_directories(test_bulkmt PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
-
 target_link_libraries(test_bulkmt PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
