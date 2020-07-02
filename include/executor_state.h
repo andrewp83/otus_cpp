@@ -12,6 +12,8 @@ public:
 	ExecutorState(Executor* executor) : executor(executor) {}
     virtual ~ExecutorState() {}
 
+    void set_executor(Executor* executor) { this->executor = executor; }
+    
 	virtual void parse_command(const std::string& name) = 0;
 
 protected:

@@ -7,75 +7,73 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(bulkmt VERSION 0.0.${COMMON_TBN})
+project(async VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES src/application.cpp
+set(SOURCES async.cpp
             src/command.cpp
             src/command_observer.cpp
             src/executor.cpp
             src/executor_state.cpp
             src/file_writer.cpp
             src/console_printer.cpp
-            src/thread_manager.cpp
-            src/threads.cpp
-            src/stats_manager.cpp
+            src/thread_worker.cpp
+            src/event.cpp
 )
 
-set(HEADERS  include/application.h
-             include/command.h
-             include/command_observer.h
-             include/command_publisher.hpp
-             include/executor.h
-             include/executor_state.h
-             include/file_writer.h
-             include/console_printer.h
-             include/common_types.h
-             include/thread_manager.h
-             include/threads.h
-             include/stats_manager.h
+set(HEADERS async.h
+            include/async_defs.h
+            include/command.h
+            include/command_observer.h
+            include/command_publisher.hpp
+            include/event.h
+            include/executor.h
+            include/executor_state.h
+            include/file_writer.h
+            include/console_printer.h
+            include/common_types.h
+            include/thread_worker.h
 )
 
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(bulkmt ${SOURCES} ${HEADERS} main.cpp)
+add_library(async ${SOURCES} ${HEADERS})
 
-add_executable(test_bulkmt  ${SOURCES}
+add_executable(test_async   ${SOURCES}
                             ${HEADERS}
-                            test/test_executor.h
-                            test/test_observer.h
+                            test/test_async.h
                             test/test_main.cpp
 )
 
-set_target_properties(bulkmt test_bulkmt PROPERTIES
+set_target_properties(async test_async PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
-target_include_directories(bulkmt PRIVATE src/ include/)
-target_link_libraries(bulkmt PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(async PRIVATE ./ src/ include/)
+target_link_libraries(async PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
 
-target_include_directories(test_bulkmt PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
-target_link_libraries(test_bulkmt PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(test_async PRIVATE ${GTEST_INCLUDE_DIRS} ./ test/ include/)
+target_link_libraries(test_async PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
-    target_compile_options(bulkmt PRIVATE
+    target_compile_options(async PRIVATE
         /W4
     )
-    target_compile_options(test_bulkmt PRIVATE
+    target_compile_options(test_async PRIVATE
         /W4
     )    
 else ()
-    target_compile_options(bulkmt PRIVATE
+    target_compile_options(async PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_bulkmt PRIVATE
+    target_compile_options(test_async PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS bulkmt RUNTIME DESTINATION bin)
+install(TARGETS async RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -88,4 +86,4 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 include(CPack)
 
 enable_testing()
-add_test(test_bulkmt test_bulkmt)
+add_test(test_async test_async)

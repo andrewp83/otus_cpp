@@ -9,19 +9,55 @@ Executor::Executor(size_t bulk_size)
 	current_state = simple_state;
 }
 
-bool Executor::parse_command(const std::string& name) {
+Executor::Executor(Executor&& other)
+: commands(std::move(other.commands))
+, raw_buffer(std::move(other.raw_buffer))
+, current_state(std::move(other.current_state))
+, simple_state(std::move(other.simple_state))
+, braced_state(std::move(other.braced_state))
+, bulk_size(std::move(other.bulk_size)) {
     
-    if (name == "exit") {
-        execute_bulk();
-        notify(&CommandObserver::command_process_stopped);
-        return true;
+    simple_state->set_executor(this);
+    braced_state->set_executor(this);
+}
+
+Executor& Executor::operator=(Executor&& other) {
+    if (this == &other) {
+        return *this;
     }
+
+    commands = std::move(other.commands);
+    raw_buffer = std::move(other.raw_buffer);
+    bulk_size = std::move(other.bulk_size);
+    current_state = std::move(other.current_state);
+    simple_state = std::move(other.simple_state);
+    braced_state = std::move(other.braced_state);
+        
+    simple_state->set_executor(this);
+    braced_state->set_executor(this);
     
+    return *this;
+}
+
+void Executor::parse_command(const std::string& name) {
+
     notify(&CommandObserver::command_read, name);
 
 	current_state->parse_command(name);
+}
+
+void Executor::parse_buffer(const std::string& buffer) {
     
-    return false;
+    raw_buffer = buffer;
+    
+    std::size_t parsed_size = 0;
+    std::size_t next_pos = 0;
+    while ((next_pos = raw_buffer.find("\n")) != std::string::npos) {
+        std::string next_cmd = raw_buffer.substr(parsed_size, next_pos - parsed_size);
+        parse_command(next_cmd);
+        parsed_size = next_pos + 1;
+    }
+    raw_buffer.erase(0, parsed_size);
 }
 
 void Executor::add_command(const std::string& str) {

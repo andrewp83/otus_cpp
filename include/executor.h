@@ -8,11 +8,19 @@
 #include "command_publisher.hpp"
 #include "executor_state.h"
 
+
 class Executor : public CommandPublisher {
 public:
 	Executor(size_t bulk_size);
-
-	bool parse_command(const std::string& name);
+    Executor(const Executor&) = delete;
+    Executor(Executor&&);
+    
+    Executor& operator=(const Executor&) = delete;
+    Executor& operator=(Executor&&);
+    
+    void parse_buffer(const std::string& buffer);
+    
+	void parse_command(const std::string& name);
     
     BulkResult execute_bulk();
 
@@ -26,12 +34,14 @@ private:
 
 private:
 	std::queue<std::unique_ptr<Command>> commands;
+    
+    std::string raw_buffer;
 
 	ExecutorStatePtr current_state;
 	ExecutorStatePtr simple_state;
 	ExecutorStatePtr braced_state;
 
-	const size_t bulk_size {0};
+	size_t bulk_size {0};
 
 	friend class SimpleExecutorState;
     friend class BracedExecutorState;
