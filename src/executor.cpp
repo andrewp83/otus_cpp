@@ -50,14 +50,12 @@ void Executor::parse_buffer(const std::string& buffer) {
     
     raw_buffer = buffer;
     
-    std::size_t parsed_size = 0;
     std::size_t next_pos = 0;
     while ((next_pos = raw_buffer.find("\n")) != std::string::npos) {
-        std::string next_cmd = raw_buffer.substr(parsed_size, next_pos - parsed_size);
+        std::string next_cmd = raw_buffer.substr(0, next_pos);
         parse_command(next_cmd);
-        parsed_size = next_pos + 1;
+        raw_buffer.erase(0, next_pos + 1);
     }
-    raw_buffer.erase(0, parsed_size);
 }
 
 void Executor::add_command(const std::string& str) {

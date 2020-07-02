@@ -1,5 +1,7 @@
 #include "thread_worker.h"
 
+#include <iostream>
+
 #include "async_defs.h"
 
 
@@ -21,9 +23,12 @@ void ThreadWorker::push_event(const Event& event) {
 void ThreadWorker::process_event(const Event& event) {
     std::unique_lock<std::mutex> lock(g_executors_mutex);
     auto it = g_executors.find(event.handle);
+    
+    // ТУТ НАДО ЗАЛОЧИТЬ МЬЮТЕКС НА EXECUTOR И ОСВОБОДИТЬ МЬЮТЕКС НА МАПУ
+    // TO DO ...
+    
     if (it != g_executors.end()) {
-        Executor& executor = it->second;
-        executor.parse_buffer(event.buffer);
+        it->second->parse_buffer(event.buffer);
     }
 }
 
