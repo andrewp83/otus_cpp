@@ -2,56 +2,38 @@
 
 #include <list>
 #include <set>
+#include <memory>
 
 #include "command_observer.h"
 
-//class CommandObserver;
-
-class CommandPublisher {
+template<typename T>
+class Publisher {
 public:
     
-	void add_observer(CommandObserver* obj) {
-        observers.push_back(obj);
-	}
-
-	void remove_observer(CommandObserver* obj) {
-        removes.insert(obj);
-        clear_observers();
-	}
+    static void add(const std::shared_ptr<T>& obs) {
+        observers.push_back(obs);
+    }
     
-    void clear_observers() {
-        if (observers_locked) return;
+    template<typename Func, typename... Args>
+    static void notify(Func func, Args... args) {
         
         auto it = observers.begin();
-        while (it != observers.end()) {
-            if (removes.count(*it) > 0) {
-                it = observers.erase(it);
+        
+        while (it != observers.end()){
+            auto observer = it->lock();
+            if (observer) {
+                ((*observer).*func)(args...);
+                it++;
             } else {
-                ++it;
+                it = observers.erase(it);
             }
-        }
-        removes.clear();
+        };
+        
     }
     
-    size_t observers_count() const {
-        return observers.size();
-    }
-
-	template<typename Func, typename... Args>
-	void notify(Func func, Args... args) {
-        observers_locked = true;
-        
-		for(auto obs : observers){
-			(obs->*func)(args...);
-		};
-        
-        observers_locked = false;
-
-        clear_observers();
-	}
-
 private:
-	std::list<CommandObserver*> observers;
-    std::set<CommandObserver*> removes;
-    bool observers_locked {false};
+    static std::list<std::weak_ptr<T>> observers;
 };
+
+template<typename T>
+std::list<std::weak_ptr<T>> Publisher<T>::observers;

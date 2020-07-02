@@ -1,6 +1,6 @@
 #include "executor.h"
 #include <iostream>
-#include "command_observer.h"
+#include "command_publisher.hpp"
 
 Executor::Executor(size_t bulk_size) 
 : bulk_size(bulk_size) {
@@ -41,7 +41,7 @@ Executor& Executor::operator=(Executor&& other) {
 
 void Executor::parse_command(const std::string& name) {
 
-    notify(&CommandObserver::command_read, name);
+    Publisher<CommandObserver>::notify(&CommandObserver::command_read, name);
 
 	current_state->parse_command(name);
 }
@@ -78,7 +78,7 @@ BulkResult Executor::execute_bulk() {
         bulk_res.command_results.push_back(cmd_res);
 	}
 	
-	notify(&CommandObserver::bulk_executed, bulk_res);
+	Publisher<CommandObserver>::notify(&CommandObserver::bulk_executed, bulk_res);
 
     return bulk_res;
 }

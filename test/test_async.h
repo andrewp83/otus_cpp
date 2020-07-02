@@ -5,11 +5,14 @@
 #include <chrono>
 
 #include "command_observer.h"
+#include "command_publisher.hpp"
 #include "executor.h"
 #include "async_defs.h"
 
 class TestObserver : public CommandObserver {
 public:
+    virtual ~TestObserver() {}
+    
     void bulk_executed(const BulkResult& result) override {
     	last_results.push(result);
     }
@@ -39,8 +42,8 @@ protected:
 		observer = std::make_shared<TestObserver>();
 //		observer->subscribe(executor);
         
-        auto p = executor_map.emplace(4, std::make_shared<Executor>(4));
-        observer->subscribe(p.first->second);
+        executor_map.emplace(4, std::make_shared<Executor>(4));
+        Publisher<CommandObserver>::add(observer);
 	}
 
 	virtual void TearDown() {
@@ -144,8 +147,9 @@ TEST_F(ExecutorTest, EmptyBulk) {
 
 	BulkResult res = observer->pop_last_result();
     ASSERT_EQ(res.to_string(), "");
-    
-    
+}
+
+TEST_F(ExecutorTest, AsyncBulk) {
     std::cout << "********\n";
 
     auto h = async::connect(5);
@@ -161,6 +165,7 @@ TEST_F(ExecutorTest, EmptyBulk) {
     std::this_thread::sleep_for(2s);
 
     std::cout << "********\n";
+    
+    BulkResult res = observer->pop_last_result();
+    ASSERT_EQ(res.to_string(), "");
 }
-
-

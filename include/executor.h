@@ -5,11 +5,10 @@
 
 #include "common_types.h"
 #include "command.h"
-#include "command_publisher.hpp"
 #include "executor_state.h"
 
 
-class Executor : public CommandPublisher {
+class Executor {
 public:
 	Executor(size_t bulk_size);
     Executor(const Executor&) = delete;
