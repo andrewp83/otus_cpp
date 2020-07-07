@@ -69,8 +69,8 @@ void Executor::parse_buffers() {
     
     std::size_t max_received_buffer_id = received_buffers.rbegin()->first;
     if (received_buffers.size() == (max_received_buffer_id - last_parsed_buffer_id)) {
-        std::for_each(received_buffers.begin(), received_buffers.end(), [this](const auto& _p){
-            parse_buffer(_p.second);
+        std::for_each(received_buffers.begin(), received_buffers.end(), [this](const std::pair<std::size_t, std::string>& _p){
+            this->parse_buffer(_p.second);
         });
         received_buffers.clear();
         last_parsed_buffer_id = max_received_buffer_id;
