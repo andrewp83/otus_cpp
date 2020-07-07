@@ -10,7 +10,8 @@ before_script:
 #- sudo apt-get install libboost-all-dev -y
 # Обновляем компилятор
 - sudo apt-get install -qq g++-6
-- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90 
+#- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90 
+- sudo update-alternatives --install /usr/bin/g++ g++ 90 
 
 - sudo apt-get install libgtest-dev -y
 - sudo apt-get install cmake -y
