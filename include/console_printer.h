@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "command_observer.h"
 
 class ConsolePrinter : public CommandObserver {
