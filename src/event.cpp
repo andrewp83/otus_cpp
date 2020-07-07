@@ -9,8 +9,9 @@
 
 namespace async {
 
-Event::Event(handle_t handle, const void* buffer, std::size_t size)
-: handle(handle) {
+Event::Event(std::size_t id, handle_t handle, const void* buffer, std::size_t size)
+: id(id)
+, handle(handle) {
     this->buffer = std::string(static_cast<const char*>(buffer), size);
 }
 

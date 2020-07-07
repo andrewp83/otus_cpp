@@ -11,5 +11,10 @@
 
 class ConsolePrinter : public CommandObserver {
 public:
+    virtual ~ConsolePrinter() {}
+    
     void bulk_executed(const BulkResult& result) override;
+    
+protected:
+    std::mutex console_mutex;
 };

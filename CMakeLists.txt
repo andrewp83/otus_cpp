@@ -37,7 +37,9 @@ set(HEADERS async.h
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 
-add_library(async ${SOURCES} ${HEADERS})
+set(CMAKE_CXX_STANDARD 14)
+
+add_library(async SHARED ${SOURCES} ${HEADERS})
 
 add_executable(test_async   ${SOURCES}
                             ${HEADERS}
@@ -45,17 +47,14 @@ add_executable(test_async   ${SOURCES}
                             test/test_main.cpp
 )
 
-set_target_properties(async test_async PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED ON
-)
-
 target_include_directories(async PRIVATE ./ src/ include/)
 target_link_libraries(async PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
-
 target_include_directories(test_async PRIVATE ${GTEST_INCLUDE_DIRS} ./ test/ include/)
 target_link_libraries(test_async PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(async_cli main.cpp)
+target_link_libraries(async_cli async)
 
 if (MSVC)
     target_compile_options(async PRIVATE

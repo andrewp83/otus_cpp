@@ -10,5 +10,6 @@
 #include "console_printer.h"
 
 void ConsolePrinter::bulk_executed(const BulkResult& result) {
+    std::lock_guard<std::mutex> lock(console_mutex);
     std::cout << result.to_string() << std::endl;
 }

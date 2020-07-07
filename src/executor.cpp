@@ -1,6 +1,7 @@
 #include "executor.h"
 #include <iostream>
 #include "command_publisher.hpp"
+#include "async_defs.h"
 
 Executor::Executor(size_t bulk_size) 
 : bulk_size(bulk_size) {
@@ -40,20 +41,48 @@ Executor& Executor::operator=(Executor&& other) {
 }
 
 void Executor::parse_command(const std::string& name) {
-
+    
+//    {
+//              static std::mutex console_mutex;
+//              std::lock_guard<std::mutex> l(console_mutex);
+//              std::cout << "parse_command: " + name + "\n ";
+//          }
+          
+    std::unique_lock<std::mutex> lock(async::g_publisher_mutex);
     Publisher<CommandObserver>::notify(&CommandObserver::command_read, name);
-
+    lock.unlock();
 	current_state->parse_command(name);
 }
 
+void Executor::receive_buffer(std::size_t event_id, const std::string& buffer) {
+    std::lock_guard<std::recursive_mutex> lock(exec_mutex);
+    received_buffers[event_id] = buffer;
+    parse_buffers();
+}
+
+void Executor::parse_buffers() {
+    if (received_buffers.empty()) {
+        return;
+    }
+    
+    std::size_t max_received_buffer_id = received_buffers.rbegin()->first;
+    if (received_buffers.size() == (max_received_buffer_id - last_parsed_buffer_id)) {
+        std::for_each(received_buffers.begin(), received_buffers.end(), [this](const auto& _p){
+            parse_buffer(_p.second);
+        });
+        received_buffers.clear();
+        last_parsed_buffer_id = max_received_buffer_id;
+    }
+}
+
 void Executor::parse_buffer(const std::string& buffer) {
-    
-    raw_buffer = buffer;
-    
+    raw_buffer += buffer;
     std::size_t next_pos = 0;
     while ((next_pos = raw_buffer.find("\n")) != std::string::npos) {
         std::string next_cmd = raw_buffer.substr(0, next_pos);
-        parse_command(next_cmd);
+        if (!next_cmd.empty()) {
+            parse_command(next_cmd);
+        }
         raw_buffer.erase(0, next_pos + 1);
     }
 }
@@ -68,6 +97,8 @@ void Executor::add_command(const std::string& str) {
 
 BulkResult Executor::execute_bulk() {
     BulkResult bulk_res;
+          
+    std::lock_guard<std::recursive_mutex> exec_lock(exec_mutex);
     
     if (commands.empty()) return bulk_res;
     
@@ -78,6 +109,7 @@ BulkResult Executor::execute_bulk() {
         bulk_res.command_results.push_back(cmd_res);
 	}
 	
+    std::unique_lock<std::mutex> lock(async::g_publisher_mutex);
 	Publisher<CommandObserver>::notify(&CommandObserver::bulk_executed, bulk_res);
 
     return bulk_res;

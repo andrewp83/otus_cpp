@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <queue>
+#include <mutex>
+#include <map>
 
 #include "common_types.h"
 #include "command.h"
@@ -17,15 +19,17 @@ public:
     Executor& operator=(const Executor&) = delete;
     Executor& operator=(Executor&&);
     
-    void parse_buffer(const std::string& buffer);
-    
-	void parse_command(const std::string& name);
+    void receive_buffer(std::size_t event_id, const std::string& buffer);
     
     BulkResult execute_bulk();
 
     BulkResult get_last_result() const;
 
 private:
+    void parse_buffers();
+    void parse_buffer(const std::string& buffer);
+    
+    void parse_command(const std::string& name);
 	void add_command(const std::string& str);
 
 	void set_simple_state();
@@ -34,6 +38,9 @@ private:
 private:
 	std::queue<std::unique_ptr<Command>> commands;
     
+    std::map<std::size_t, std::string> received_buffers;
+    std::size_t last_parsed_buffer_id {0};
+    
     std::string raw_buffer;
 
 	ExecutorStatePtr current_state;
@@ -41,6 +48,8 @@ private:
 	ExecutorStatePtr braced_state;
 
 	size_t bulk_size {0};
+    
+    std::recursive_mutex exec_mutex;
 
 	friend class SimpleExecutorState;
     friend class BracedExecutorState;

@@ -14,7 +14,9 @@ public:
     virtual ~TestObserver() {}
     
     void bulk_executed(const BulkResult& result) override {
+        std::lock_guard<std::mutex> lock(console_mutex);
     	last_results.push(result);
+        std::cout << result.to_string() << std::endl;
     }
 
     BulkResult pop_last_result() {
@@ -28,13 +30,13 @@ public:
 
 private:
 	std::queue<BulkResult> last_results;
+    std::mutex console_mutex;
 
 };
 
 class ExecutorTest : public ::testing::Test {
 protected:
 	virtual ~ExecutorTest() {
-		std::cout << "~ExecutorTest()" << std::endl;
 	}
 
 	virtual void SetUp() {
@@ -55,7 +57,7 @@ protected:
         auto it = executor_map.find(4);
         ExecutorPtr exec = it->second;
 		for (const auto& cmd : commands) {
-            exec->parse_command(cmd);
+            exec->receive_buffer(0, cmd);
 		}
 	}
 
@@ -150,22 +152,35 @@ TEST_F(ExecutorTest, EmptyBulk) {
 }
 
 TEST_F(ExecutorTest, AsyncBulk) {
-    std::cout << "********\n";
-
-    auto h = async::connect(5);
-    std::string block1 = "cmd1\ncmd2\ncmd";
-    async::receive(h, block1.c_str(), block1.size());
-    std::string block2 = "3\n\n\n\ncmd4\n";
-    async::receive(h, block2.c_str(), block2.size());
-    std::string block3 = "cmd5\n";
-    async::receive(h, block3.c_str(), block3.size());
-
-    using namespace std::chrono_literals;
-
-    std::this_thread::sleep_for(2s);
-
-    std::cout << "********\n";
     
+    using namespace std::chrono_literals;
+    
+    auto func = [](){
+        auto h = async::connect(5);
+        std::string block1 = "cmd1\ncmd2\ncmd";
+        async::receive(h, block1.c_str(), block1.size());
+        std::string block2 = "3\n\n\n\ncmd4\n";
+        async::receive(h, block2.c_str(), block2.size());
+        std::string block3 = "cmd5\n";
+        async::receive(h, block3.c_str(), block3.size());
+        std::this_thread::sleep_for(0.5s);
+        async::disconnect(h);
+    };
+    
+    std::thread t1(func);
+    std::thread t2(func);
+    std::thread t3(func);
+    std::thread t4(func);
+    std::thread t5(func);
+    std::thread t6(func);
+    std::thread t7(func);
+    std::thread t8(func);
+    std::thread t9(func);
+    
+    std::this_thread::sleep_for(1.5s);
+    
+    std::lock_guard<std::mutex> lock(async::g_publisher_mutex);
     BulkResult res = observer->pop_last_result();
-    ASSERT_EQ(res.to_string(), "");
+    std::string r = res.to_string();
+    ASSERT_EQ(r, "bulk: cmd1, cmd2, cmd3, cmd4, cmd5");
 }

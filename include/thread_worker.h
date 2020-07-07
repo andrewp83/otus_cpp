@@ -13,6 +13,7 @@ namespace async {
 class ThreadWorker {
 public:
     ThreadWorker();
+    ~ThreadWorker();
 
     void push_event(const Event& event);
     
@@ -28,7 +29,7 @@ private:
     
     std::thread t;
     
-    bool quit {false};
+    std::atomic<bool> quit {false};
 };
 
 }
