@@ -4,6 +4,8 @@
 
 class FileWriter : public CommandObserver {
 public:
+    virtual ~FileWriter() {}
+    
 	void bulk_executed(const BulkResult& result) override;
     
 private:

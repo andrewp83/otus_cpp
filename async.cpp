@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "console_printer.h"
+#include "file_writer.h"
 #include "command_publisher.hpp"
 #include "executor.h"
 #include "event.h"
@@ -12,12 +13,6 @@
 
 
 namespace async {
-
-std::shared_ptr<ConsolePrinter> create_printer() {
-    std::shared_ptr<ConsolePrinter> printer = std::make_shared<ConsolePrinter>();
-    Publisher<CommandObserver>::add(printer);
-    return printer;
-}
 
 const std::size_t THREADS_COUNT = 4;
 
@@ -32,7 +27,20 @@ std::vector<ThreadWorker> g_workers(THREADS_COUNT);
 
 std::map<std::size_t, std::size_t> g_event_ids; // handle => next_id
 
+std::shared_ptr<ConsolePrinter> create_printer() {
+    std::shared_ptr<ConsolePrinter> printer = std::make_shared<ConsolePrinter>();
+    Publisher<CommandObserver>::add(printer);
+    return printer;
+}
+
+std::shared_ptr<FileWriter> create_file_writer() {
+    std::shared_ptr<FileWriter> writer = std::make_shared<FileWriter>();
+    Publisher<CommandObserver>::add(writer);
+    return writer;
+}
+
 std::shared_ptr<ConsolePrinter> g_printer = create_printer();
+std::shared_ptr<FileWriter> g_file_writer = create_file_writer();
 
 handle_t connect(std::size_t block_size) {
     std::lock_guard<std::mutex> lock(g_executors_mutex);
