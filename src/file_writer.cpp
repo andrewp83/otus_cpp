@@ -14,6 +14,22 @@ void FileWriter::bulk_executed(const BulkResult& result) {
     fs << result.to_string();
 }
 
-std::string FileWriter::create_filename() const {
-    return "bulk" + std::to_string(time(nullptr)) + ".log";
+std::string FileWriter::create_filename() {
+    std::lock_guard<std::mutex> lock(log_mutex);
+
+    std::time_t current_time = time(nullptr);
+
+    if (current_time != last_time) {
+        last_time = current_time;
+        add_suffix = 0;
+    } else {
+        add_suffix++;
+    }
+
+    std::string filename = "bulk_" + std::to_string(current_time);
+    filename += "_";
+    filename += std::to_string(add_suffix);
+    filename += ".log";
+
+    return filename;
 }
