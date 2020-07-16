@@ -36,4 +36,4 @@ void BracedExecutorState::parse_command(const std::string& name) {
 	}
 }
 
-};
+}
