@@ -10,7 +10,7 @@ using boost::asio::ip::tcp;
 
 class Server {
 public:
-    Server(boost::asio::io_service& io_context, short port, std::size_t bulk_size)
+    Server(boost::asio::io_context& io_context, short port, std::size_t bulk_size)
     : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)), bulk_size(bulk_size) {
         
         printer = std::make_shared<ConsolePrinter>();
@@ -24,7 +24,7 @@ public:
 
 private:
     void do_accept() {
-        acceptor_.async_accept(socket, [this](boost::system::error_code ec) {
+        acceptor_.async_accept([this](boost::system::error_code ec, tcp::socket socket) {
             if (!ec) {
                 std::make_shared<Session>(std::move(socket), bulk_size)->start();
             }
