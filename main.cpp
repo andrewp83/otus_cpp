@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
         
         //boost::asio::thread_pool pool(4);
 
-        boost::asio::io_context io_context;
+        boost::asio::io_service io_context;
 
         Server server(io_context, std::atoi(argv[1]), std::atoi(argv[2]));
 
