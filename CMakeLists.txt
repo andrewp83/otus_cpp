@@ -16,8 +16,6 @@ set(SOURCES main.cpp
             src/executor_state.cpp
             src/file_writer.cpp
             src/console_printer.cpp
-            src/thread_worker.cpp
-            src/event.cpp
 )
 
 set(HEADERS include/server.hpp
@@ -25,13 +23,10 @@ set(HEADERS include/server.hpp
             include/command.h
             include/command_observer.h
             include/command_publisher.hpp
-            include/event.h
             include/executor.h
             include/executor_state.h
             include/file_writer.h
             include/console_printer.h
-            include/common_types.h
-            include/thread_worker.h
 )
 
 find_package(GTest REQUIRED)
@@ -60,9 +55,9 @@ if (MSVC)
     target_compile_options(bulk_server PRIVATE
         /W4
     )
-    target_compile_options(test_async PRIVATE
-        /W4
-    )    
+#    target_compile_options(test_async PRIVATE
+#        /W4
+#    )    
 else ()
     target_compile_options(bulk_server PRIVATE
         -Wall -Wextra -pedantic -Werror

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <iostream>
 #include "command_publisher.hpp"
-#include "async_defs.h"
 
 namespace bulk {
 

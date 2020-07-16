@@ -12,6 +12,7 @@ before_script:
 #- sudo apt-get install -qq g++-6
 #- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90 
 
+- sudo apt-get install libboost-all-dev -y
 - sudo apt-get install libgtest-dev -y
 - sudo apt-get install cmake -y
 - cd /usr/src/gtest
@@ -38,9 +39,9 @@ deploy:
   - provider: script
     skip_cleanup: true
     script:
-    - curl -T async-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/async/$TRAVIS_BUILD_NUMBER/async-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    - curl -T bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/bulk_server/$TRAVIS_BUILD_NUMBER/bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
     on:
-      branch: homework_11
+      branch: homework_12
 #  - provider: pages
 #    skip_cleanup: true
 #    github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
