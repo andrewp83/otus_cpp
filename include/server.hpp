@@ -24,7 +24,7 @@ public:
 
 private:
     void do_accept() {
-        acceptor_.async_accept([this](boost::system::error_code ec, tcp::socket socket) {
+        acceptor_.async_accept(socket, [this](boost::system::error_code ec) {
             if (!ec) {
                 std::make_shared<Session>(std::move(socket), bulk_size)->start();
             }
