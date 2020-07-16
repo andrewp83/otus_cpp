@@ -1,6 +1,5 @@
 #include <iostream>
 #include <boost/asio.hpp>
-#include <boost/asio/thread_pool.hpp>
 
 #include "server.hpp"
 
