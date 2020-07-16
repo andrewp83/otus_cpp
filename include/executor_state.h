@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-// inner class ?
+namespace bulk {
 
 class Executor;
 
@@ -38,3 +38,5 @@ private:
 };
 
 using ExecutorStatePtr = std::shared_ptr<ExecutorState>;
+
+};

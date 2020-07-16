@@ -6,7 +6,6 @@
 #include <thread>
 #include <queue>
 
-#include "async.h"
 #include "event.h"
 
 namespace async {

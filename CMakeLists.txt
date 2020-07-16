@@ -7,9 +7,9 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(async VERSION 0.0.${COMMON_TBN})
+project(bulk_server VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES async.cpp
+set(SOURCES main.cpp
             src/command.cpp
             src/command_observer.cpp
             src/executor.cpp
@@ -20,8 +20,8 @@ set(SOURCES async.cpp
             src/event.cpp
 )
 
-set(HEADERS async.h
-            include/async_defs.h
+set(HEADERS include/server.hpp
+            include/session.hpp
             include/command.h
             include/command_observer.h
             include/command_publisher.hpp
@@ -36,43 +36,43 @@ set(HEADERS async.h
 
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
+find_package(Boost REQUIRED system)
+
+include_directories(${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_library(async SHARED ${SOURCES} ${HEADERS})
+add_executable(bulk_server ${SOURCES} ${HEADERS})
 
-add_executable(test_async   ${SOURCES}
-                            ${HEADERS}
-                            test/test_async.h
-                            test/test_main.cpp
-)
+#add_executable(test_async   ${SOURCES}
+#                            ${HEADERS}
+#                            test/test_async.h
+#                            test/test_main.cpp
+#)
 
-target_include_directories(async PRIVATE ./ src/ include/)
-target_link_libraries(async PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(bulk_server PRIVATE ./ src/ include/)
+target_link_libraries(bulk_server PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
-target_include_directories(test_async PRIVATE ${GTEST_INCLUDE_DIRS} ./ test/ include/)
-target_link_libraries(test_async PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-add_executable(async_cli main.cpp)
-target_link_libraries(async_cli async)
+#target_include_directories(test_async PRIVATE ${GTEST_INCLUDE_DIRS} ./ test/ include/)
+#target_link_libraries(test_async PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
-    target_compile_options(async PRIVATE
+    target_compile_options(bulk_server PRIVATE
         /W4
     )
     target_compile_options(test_async PRIVATE
         /W4
     )    
 else ()
-    target_compile_options(async PRIVATE
+    target_compile_options(bulk_server PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_async PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
+#    target_compile_options(test_async PRIVATE
+#        -Wall -Wextra -pedantic -Werror
+#    )
 endif()
 
-install(TARGETS async LIBRARY DESTINATION lib)
+install(TARGETS bulk_server RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -84,5 +84,5 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
 
-enable_testing()
-add_test(test_async test_async)
+#enable_testing()
+#add_test(test_async test_async)

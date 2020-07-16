@@ -5,6 +5,10 @@
 #include "command_publisher.hpp"
 #include "async_defs.h"
 
+namespace bulk {
+
+CommandsQueue Executor::shared_commands;
+
 Executor::Executor(size_t bulk_size) 
 : bulk_size(bulk_size) {
 	simple_state = std::make_shared<SimpleExecutorState>(this);
@@ -43,39 +47,32 @@ Executor& Executor::operator=(Executor&& other) {
 }
 
 void Executor::parse_command(const std::string& name) {
-    
-//    {
-//              static std::mutex console_mutex;
-//              std::lock_guard<std::mutex> l(console_mutex);
-//              std::cout << "parse_command: " + name + "\n ";
-//          }
-          
-    std::unique_lock<std::mutex> lock(async::g_publisher_mutex);
+    std::unique_lock<std::mutex> lock(publisher_mutex);
     Publisher<CommandObserver>::notify(&CommandObserver::command_read, name);
     lock.unlock();
 	current_state->parse_command(name);
 }
 
-void Executor::receive_buffer(std::size_t event_id, const std::string& buffer) {
-    std::lock_guard<std::recursive_mutex> lock(exec_mutex);
-    received_buffers[event_id] = buffer;
-    parse_buffers();
-}
-
-void Executor::parse_buffers() {
-    if (received_buffers.empty()) {
-        return;
-    }
-    
-    std::size_t max_received_buffer_id = received_buffers.rbegin()->first;
-    if (received_buffers.size() == (max_received_buffer_id - last_parsed_buffer_id)) {
-        std::for_each(received_buffers.begin(), received_buffers.end(), [this](const std::pair<std::size_t, std::string>& _p){
-            this->parse_buffer(_p.second);
-        });
-        received_buffers.clear();
-        last_parsed_buffer_id = max_received_buffer_id;
-    }
-}
+//void Executor::receive_buffer(std::size_t event_id, const std::string& buffer) {
+//    std::lock_guard<std::recursive_mutex> lock(exec_mutex);
+//    received_buffers[event_id] = buffer;
+//    parse_buffers();
+//}
+//
+//void Executor::parse_buffers() {
+//    if (received_buffers.empty()) {
+//        return;
+//    }
+//
+//    std::size_t max_received_buffer_id = received_buffers.rbegin()->first;
+//    if (received_buffers.size() == (max_received_buffer_id - last_parsed_buffer_id)) {
+//        std::for_each(received_buffers.begin(), received_buffers.end(), [this](const std::pair<std::size_t, std::string>& _p){
+//            this->parse_buffer(_p.second);
+//        });
+//        received_buffers.clear();
+//        last_parsed_buffer_id = max_received_buffer_id;
+//    }
+//}
 
 void Executor::parse_buffer(const std::string& buffer) {
     raw_buffer += buffer;
@@ -97,23 +94,41 @@ void Executor::add_command(const std::string& str) {
 	commands.push(std::move(cmd));
 }
 
-BulkResult Executor::execute_bulk() {
-    BulkResult bulk_res;
-          
-    std::lock_guard<std::recursive_mutex> exec_lock(exec_mutex);
-    
-    if (commands.empty()) return bulk_res;
-    
-	while (!commands.empty()) {
-        std::unique_ptr<Command> cmd = std::move(commands.front());
-        commands.pop();
-		CommandResult cmd_res = cmd->execute();
-        bulk_res.command_results.push_back(cmd_res);
-	}
-	
-    std::unique_lock<std::mutex> lock(async::g_publisher_mutex);
-	Publisher<CommandObserver>::notify(&CommandObserver::bulk_executed, bulk_res);
+void Executor::add_shared_command(const std::string& str) {
+    std::unique_ptr<Command> cmd = CommandCreator::create(str);
+    if (!cmd) {
+        throw std::logic_error("unknown command");
+    }
+    shared_commands.push(std::move(cmd));
+}
 
+BulkResult Executor::execute_bulk() {
+    BulkResult bulk_res = execute_commands_queue(commands);
+    Publisher<CommandObserver>::notify(&CommandObserver::bulk_executed, bulk_res);
+    return bulk_res;
+}
+
+BulkResult Executor::execute_shared_bulk() {
+    std::lock_guard<std::mutex> exec_lock(exec_mutex);
+    
+    BulkResult bulk_res = execute_commands_queue(shared_commands);
+    
+    std::lock_guard<std::mutex> lock(publisher_mutex);
+    Publisher<CommandObserver>::notify(&CommandObserver::bulk_executed, bulk_res);
+    
+    return bulk_res;
+}
+
+BulkResult Executor::execute_commands_queue(CommandsQueue& queue) {
+    BulkResult bulk_res;
+    
+    while (!queue.empty()) {
+        std::unique_ptr<Command> cmd = std::move(queue.front());
+        queue.pop();
+        CommandResult cmd_res = cmd->execute();
+        bulk_res.command_results.push_back(cmd_res);
+    }
+    
     return bulk_res;
 }
 
@@ -124,3 +139,5 @@ void Executor::set_simple_state() {
 void Executor::set_braced_state() {
 	current_state = braced_state;
 }
+
+};
