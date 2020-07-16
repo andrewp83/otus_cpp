@@ -1,17 +1,22 @@
+dist: xenial
+
 language: cpp
 
 if: commit_message =~ /_BUILD/
 
 before_script:
 # Добавляем xenial-репозиторий (более новый) в системные
-- echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
-- sudo apt update
+#- echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
+#- sudo apt update
 # Получаем возможность через apt-get установить более свежую версию Boost-а. 
-- sudo apt-cache search libboost
-- sudo apt-get install libboost-all-dev -y
+#- sudo apt-get install libboost-all-dev -y
 # Обновляем компилятор
 #- sudo apt-get install -qq g++-6
 #- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90 
+
+- sudo add-apt-repository ppa:mhier/libboost-latest -y
+- sudo apt-get update -q
+- sudo apt-get install libboost1.70-dev -y
 
 #- sudo apt-get install libboost-all-dev -y
 - sudo apt-get install libgtest-dev -y
