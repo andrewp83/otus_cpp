@@ -13,39 +13,24 @@ ThreadWorker::ThreadWorker() {
 
 ThreadWorker::~ThreadWorker() {
     quit = true;
-    queue_cv.notify_all();
+    lib.get_queue_cv().notify_all();
     t.join();
 }
 
-void ThreadWorker::push_event(const Event& event) {
-    {
-        std::lock_guard<std::mutex> lock(queue_mutex);
-        event_queue.push(event);
-    }
-    queue_cv.notify_one();
-}
-
 void ThreadWorker::process_event(const Event& event) {
-    
-    std::unique_lock<std::mutex> lock(g_executors_mutex);
-    auto it = g_executors.find(event.handle);
-    if (it != g_executors.end()) {
-        ExecutorPtr executor = it->second;
-        lock.unlock();
-        executor->receive_buffer(event.id, event.buffer);
-    }
+    lib.process_event(event);
 }
 
 void ThreadWorker::run() {
     while (!quit) {
-        std::unique_lock<std::mutex> lock(queue_mutex);
-        queue_cv.wait(lock, [this]() {
-            return !event_queue.empty() || quit;
+        std::unique_lock<std::mutex> lock(lib.get_queue_mutex());
+        lib.get_queue_cv().wait(lock, [this]() {
+            return !lib.get_event_queue().empty() || quit;
         });
         if (!quit) {
-            const Event& event = event_queue.front();
+            const Event& event = lib.get_event_queue().front();
             process_event(event);
-            event_queue.pop();
+            lib.event_queue_pop();
         }
     }
 }

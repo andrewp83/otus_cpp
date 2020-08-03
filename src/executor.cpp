@@ -43,16 +43,7 @@ Executor& Executor::operator=(Executor&& other) {
 }
 
 void Executor::parse_command(const std::string& name) {
-    
-//    {
-//              static std::mutex console_mutex;
-//              std::lock_guard<std::mutex> l(console_mutex);
-//              std::cout << "parse_command: " + name + "\n ";
-//          }
-          
-    std::unique_lock<std::mutex> lock(async::g_publisher_mutex);
-    Publisher<CommandObserver>::notify(&CommandObserver::command_read, name);
-    lock.unlock();
+    async::lib.notify_command_read(name);
 	current_state->parse_command(name);
 }
 
@@ -110,9 +101,8 @@ BulkResult Executor::execute_bulk() {
 		CommandResult cmd_res = cmd->execute();
         bulk_res.command_results.push_back(cmd_res);
 	}
-	
-    std::unique_lock<std::mutex> lock(async::g_publisher_mutex);
-	Publisher<CommandObserver>::notify(&CommandObserver::bulk_executed, bulk_res);
+    
+    async::lib.notify_bulk_executed(bulk_res);
 
     return bulk_res;
 }

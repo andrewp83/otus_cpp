@@ -10,6 +10,7 @@ endif()
 project(async VERSION 0.0.${COMMON_TBN})
 
 set(SOURCES async.cpp
+            src/lib_manager.cpp
             src/command.cpp
             src/command_observer.cpp
             src/executor.cpp
@@ -21,6 +22,7 @@ set(SOURCES async.cpp
 )
 
 set(HEADERS async.h
+            include/lib_manager.h
             include/async_defs.h
             include/command.h
             include/command_observer.h
