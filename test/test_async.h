@@ -16,7 +16,7 @@ public:
     void bulk_executed(const BulkResult& result) override {
         std::lock_guard<std::mutex> lock(console_mutex);
     	last_results.push(result);
-        std::cout << result.to_string() << std::endl;
+        //std::cout << result.to_string() << std::endl;
     }
 
     BulkResult pop_last_result() {
@@ -42,10 +42,10 @@ protected:
 	virtual void SetUp() {
 		executor = std::make_shared<Executor>(4);
 		observer = std::make_shared<TestObserver>();
-//		observer->subscribe(executor);
         
         executor_map.emplace(4, std::make_shared<Executor>(4));
-        Publisher<CommandObserver>::add(observer);
+        async::lib.add_observer(observer);
+        async::lib.set_testing_mode();
 	}
 
 	virtual void TearDown() {
@@ -68,77 +68,6 @@ protected:
     
     std::map<int, ExecutorPtr> executor_map;
 };
-
-//TEST_F(ExecutorTest, Simple) {
-//	// Adjust ...
-//	//
-//
-//	commands = {
-//		"cmd1",
-//		"cmd2",
-//		"cmd3",
-//		"cmd4"
-//	};
-//	set_executor_commands();
-//
-//	BulkResult res = observer->pop_last_result();
-//    ASSERT_EQ(res.to_string(), "bulk: cmd1, cmd2, cmd3, cmd4");
-//}
-//
-//TEST_F(ExecutorTest, Bulk) {
-// 	commands = {
-//		"cmd1",
-//		"cmd2",
-//		"cmd3",
-//		"cmd4",
-//		"{",
-//		"cmd5",
-//		"cmd6",
-//		"cmd7",
-//		"cmd8",
-//		"cmd9",
-//		"cmd10",
-//		"}",
-//		"}",
-//	};
-//	set_executor_commands();
-//
-//	BulkResult res = observer->pop_last_result();
-//    ASSERT_EQ(res.to_string(), "bulk: cmd1, cmd2, cmd3, cmd4");
-//	res = observer->pop_last_result();
-//    ASSERT_EQ(res.to_string(), "bulk: cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
-//	res = observer->pop_last_result();
-//    ASSERT_EQ(res.to_string(), "");
-//}
-//
-//TEST_F(ExecutorTest, NestedBulks) {
-//   	commands = {
-//		"cmd1",
-//		"cmd2",
-//		"cmd3",
-//		"{",
-//		"cmd4",
-//		"cmd5",
-//		"cmd6",
-//		"{",
-//		"cmd7",
-//		"}",
-//		"cmd8",
-//		"{",
-//		"cmd9",
-//		"}",
-//		"cmd10",
-//		"}",
-//	};
-//	set_executor_commands();
-//
-//    std::string res = observer->pop_last_result().to_string();
-//	ASSERT_EQ(res, "bulk: cmd1, cmd2, cmd3");
-//    res = observer->pop_last_result().to_string();
-//	ASSERT_EQ(res, "bulk: cmd4, cmd5, cmd6, cmd7, cmd8, cmd9, cmd10");
-//    res = observer->pop_last_result().to_string();
-//	ASSERT_EQ(res, "");
-//}
 
 #include <chrono>
 
@@ -167,20 +96,20 @@ TEST_F(ExecutorTest, AsyncBulk) {
         async::disconnect(h);
     };
     
-    std::thread t1(func);
-    std::thread t2(func);
-    std::thread t3(func);
-    std::thread t4(func);
-    std::thread t5(func);
-    std::thread t6(func);
-    std::thread t7(func);
-    std::thread t8(func);
-    std::thread t9(func);
+    std::vector<std::thread> threads;
+    
+    const size_t THREADS_COUNT = 9;
+    
+    for (size_t i = 0; i < THREADS_COUNT; i++) {
+        threads.emplace_back(func);
+    }
     
     std::this_thread::sleep_for(1.5s);
     
-    std::lock_guard<std::mutex> lock(async::g_publisher_mutex);
+    std::lock_guard<std::mutex> lock(async::lib.get_publisher_mutex());
     BulkResult res = observer->pop_last_result();
     std::string r = res.to_string();
     ASSERT_EQ(r, "bulk: cmd1, cmd2, cmd3, cmd4, cmd5");
+    
+    for (auto& t : threads) t.join();
 }

@@ -45,6 +45,15 @@ void LibManager::disconnect(handle_t h) {
     }
 }
 
+void LibManager::add_observer(const std::shared_ptr<CommandObserver>& obs) {
+    publisher.add(obs);
+}
+
+void LibManager::set_testing_mode() {
+    printer.reset();
+    file_writer.reset();
+}
+
 void LibManager::push_event(const Event& event) {
     {
         std::lock_guard<std::mutex> lock(queue_mutex);

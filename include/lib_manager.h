@@ -21,6 +21,10 @@ public:
     void receive(handle_t h, const void* buffer, std::size_t size);
     void disconnect(handle_t h);
     
+    void add_observer(const std::shared_ptr<CommandObserver>& obs);
+    
+    void set_testing_mode();
+    
     void push_event(const Event& event);
     void process_event(const Event& event);
     
@@ -29,6 +33,8 @@ public:
     
     std::condition_variable& get_queue_cv() { return queue_cv; }
     std::mutex& get_queue_mutex() { return queue_mutex; }
+    std::mutex& get_publisher_mutex() { return publisher_mutex; }
+    
     const std::queue<Event>& get_event_queue() const { return event_queue; }
     void event_queue_pop();
     
