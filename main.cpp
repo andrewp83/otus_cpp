@@ -6,8 +6,8 @@
 int main(int argc, char* argv[]) {
 
     try {
-        if (argc != 3) {
-            std::cerr << "Usage: bulk_server <port> <bulk_size>\n";
+        if (argc != 2) {
+            std::cerr << "Usage: join_server <port>\n";
             return 1;
         }
         
@@ -15,7 +15,9 @@ int main(int argc, char* argv[]) {
 
         boost::asio::io_context io_context;
 
-        Server server(io_context, std::atoi(argv[1]), std::atoi(argv[2]));
+        Server server(io_context, std::atoi(argv[1]));
+        
+        std::cout << "Join server started..." << std::endl;
 
         io_context.run();
         

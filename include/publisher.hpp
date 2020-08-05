@@ -4,18 +4,16 @@
 #include <set>
 #include <memory>
 
-#include "command_observer.h"
-
 template<typename T>
 class Publisher {
 public:
     
-    static void add(const std::shared_ptr<T>& obs) {
+    void add(const std::shared_ptr<T>& obs) {
         observers.push_back(obs);
     }
     
     template<typename Func, typename... Args>
-    static void notify(Func func, Args... args) {
+    void notify(Func func, Args... args) {
         
         auto it = observers.begin();
         
@@ -32,8 +30,5 @@ public:
     }
     
 private:
-    static std::list<std::weak_ptr<T>> observers;
+    std::list<std::weak_ptr<T>> observers;
 };
-
-template<typename T>
-std::list<std::weak_ptr<T>> Publisher<T>::observers;
