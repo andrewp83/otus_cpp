@@ -6,6 +6,7 @@
 //
 
 #include <algorithm>
+#include <iterator>
 #include <sstream>
 
 #include "database.h"
