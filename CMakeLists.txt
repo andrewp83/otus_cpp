@@ -9,8 +9,7 @@ endif()
 
 project(join_server VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES main.cpp
-            src/database.cpp
+set(SOURCES src/database.cpp
             src/database_sql.cpp
 )
 
@@ -29,17 +28,28 @@ include_directories(${Boost_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(join_server ${SOURCES} ${HEADERS})
+add_executable(join_server ${SOURCES} ${HEADERS} main.cpp)
+
+add_executable(test_join ${SOURCES} ${HEADERS} test/test_join.hpp test/test_main.cpp)
 
 target_include_directories(join_server PRIVATE ./ src/ include/)
 target_link_libraries(join_server PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+
+target_include_directories(test_join PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
+target_link_libraries(test_join PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
     target_compile_options(join_server PRIVATE
         /W4
     )
+    target_compile_options(test_join PRIVATE
+        /W4
+    )
 else ()
     target_compile_options(join_server PRIVATE
+        -Wall -Wextra -pedantic -Werror
+    )
+    target_compile_options(test_join PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
@@ -55,3 +65,6 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
+
+enable_testing()
+add_test(test_join test_join)

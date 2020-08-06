@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "test_async.h"
+#include "test_join.hpp"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
