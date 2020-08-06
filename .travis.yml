@@ -4,21 +4,22 @@ language: cpp
 
 if: commit_message =~ /_BUILD/
 
+
+addons:
+  apt:
+    sources:
+    - sourceline: 'ppa:ubuntu-toolchain-r/test'
+    packages:
+    - g++-8 
+
+
 before_script:
-# Добавляем xenial-репозиторий (более новый) в системные
-#- echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
-#- sudo apt update
-# Получаем возможность через apt-get установить более свежую версию Boost-а. 
-#- sudo apt-get install libboost-all-dev -y
-# Обновляем компилятор
-#- sudo apt-get install -qq g++-6
-#- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90 
+- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
 
 - sudo add-apt-repository ppa:mhier/libboost-latest -y
 - sudo apt-get update -q
 - sudo apt-get install libboost1.70-dev -y
 
-#- sudo apt-get install libboost-all-dev -y
 - sudo apt-get install libgtest-dev -y
 - sudo apt-get install cmake -y
 - cd /usr/src/gtest
@@ -27,31 +28,18 @@ before_script:
 - sudo cp *.a /usr/lib
 - cd $TRAVIS_BUILD_DIR
 
-#addons:
-#  apt:
-#    packages:
-#      - libgtest-dev
-#      - doxygen
-#      - graphviz
 
 script:
-#- doxygen Doxyfile
 - cmake .
 - cmake --build .
-#- cmake --build . --target test
+- cmake --build . --target test
 - cmake --build . --target package
+
 
 deploy:
   - provider: script
     skip_cleanup: true
     script:
-    - curl -T bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/bulk_server/$TRAVIS_BUILD_NUMBER/bulk_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    - curl -T join_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/join_server/$TRAVIS_BUILD_NUMBER/join_server-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
     on:
-      branch: homework_12
-#  - provider: pages
-#    skip_cleanup: true
-#    github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-#    keep_history: false
-#    local_dir: editor_docs/html
-#    on:
-#      branch: homework_05
+      branch: homework_13
