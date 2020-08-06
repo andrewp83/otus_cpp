@@ -5,6 +5,7 @@
 //  Created by a.polyakov on 06.08.2020.
 //
 
+#include <algorithm>
 #include <sstream>
 
 #include "database.h"
