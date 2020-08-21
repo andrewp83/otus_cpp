@@ -7,54 +7,55 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(join_server VERSION 0.0.${COMMON_TBN})
+project(yamr VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES src/database.cpp
-            src/database_sql.cpp
+set(SOURCES src/mail_mapper.cpp
+            src/mail_reducer.cpp
+            src/job.cpp
 )
 
-set(HEADERS include/server.hpp
-            include/session.hpp
-            include/publisher.hpp
-            include/database.h
-            include/database_sql.h
+set(HEADERS include/mapper.h
+            include/mail_mapper.h
+            include/reducer.h
+            include/mail_reducer.h
+            include/job.h
 )
 
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED system)
+#find_package(Boost REQUIRED system)
 
-include_directories(${Boost_INCLUDE_DIR})
+#include_directories(${Boost_INCLUDE_DIR})
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(join_server ${SOURCES} ${HEADERS} main.cpp)
+add_executable(yamr ${SOURCES} ${HEADERS} main.cpp)
 
-add_executable(test_join ${SOURCES} ${HEADERS} test/test_join.hpp test/test_main.cpp)
+add_executable(test_yamr ${SOURCES} ${HEADERS} test/test_yamr.hpp test/test_main.cpp)
 
-target_include_directories(join_server PRIVATE ./ src/ include/)
-target_link_libraries(join_server PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(yamr PRIVATE ./ src/ include/)
+target_link_libraries(yamr PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
-target_include_directories(test_join PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
-target_link_libraries(test_join PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(test_yamr PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
+target_link_libraries(test_yamr PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MSVC)
-    target_compile_options(join_server PRIVATE
+    target_compile_options(yamr PRIVATE
         /W4
     )
-    target_compile_options(test_join PRIVATE
+    target_compile_options(test_yamr PRIVATE
         /W4
     )
 else ()
-    target_compile_options(join_server PRIVATE
+    target_compile_options(yamr PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_join PRIVATE
+    target_compile_options(test_yamr PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS join_server RUNTIME DESTINATION bin)
+install(TARGETS yamr RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -67,4 +68,4 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 include(CPack)
 
 enable_testing()
-add_test(test_join test_join)
+add_test(test_yamr test_yamr)
