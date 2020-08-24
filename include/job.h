@@ -11,10 +11,10 @@
 
 namespace mr {
 
-template<class T>
+template<class T, class Result, class BinaryOperation, class Container = std::vector<T>>
 class Job {
 public:
-	Job(IMapper<T>* mapper, IReducer<T>* reducer) : mapper(mapper), reducer(reducer) {}
+	Job(IMapper<T, Container>* mapper, IReducer<T, Result, Container>* reducer) : mapper(mapper), reducer(reducer) {}
 
     void set_map_workers_count(std::size_t count) {
         if (count > 0) {
@@ -31,6 +31,7 @@ public:
     void wait_for_completion() {
         std::vector<std::thread> map_workers;
         map_workers.reserve(map_workers_count);
+        total_results_size = 0;
         for (std::size_t i = 0; i < map_workers_count; ++i) {
             map_workers.emplace_back(std::bind(&Job::invoke_mapper, this, i, map_workers_count));
         }
@@ -41,25 +42,33 @@ public:
         run_reducers();
     }
     
+    Result get_result() const { return summary_result; }
+    
 protected:
     void invoke_mapper(std::size_t chunk_num, std::size_t chunks_count) {
-        T result = mapper->call(chunk_num, chunks_count);
+        Container result = mapper->call(chunk_num, chunks_count);
         std::lock_guard<std::mutex> lock(map_results_mutex);
         map_results.push_back(result);
+        total_results_size += result.size();
     }
     
-    void invoke_reducer(T chunk) {
-        reducer->call(chunk);
+    void invoke_reducer(Container chunk) {
+        Result res = reducer->call(chunk);
+        reduce_results.push_back(std::move(res));
     }
     
-    using T_Iterator = typename T::const_iterator;
+    using T_Iterator = typename Container::const_iterator;
     using T_Iterators_Pair = std::pair<T_Iterator, T_Iterator>;
     
-    struct Compare {
+    struct QueueComparator {
         bool operator()(const T_Iterators_Pair& lhs, const T_Iterators_Pair& rhs) const {
-            return *lhs.first > *rhs.first;
+            return !(*lhs.first < *rhs.first);
         };
     };
+    
+    static bool is_equal(const T& lhs, const T& rhs) {
+        return !(lhs < rhs) && !(rhs < lhs);
+    }
     
     void run_reducers() {
         // merge results
@@ -67,41 +76,65 @@ protected:
         std::vector<std::thread> reduce_workers;
         reduce_workers.reserve(reduce_workers_count);
         
-        const std::size_t reduce_chunk_size = std::max(map_results.size() / reduce_workers_count, 1UL);
+        const std::size_t reduce_chunk_size = std::max(total_results_size / reduce_workers_count, 1UL);
         
-        T merged_result;
+        Container merged_result;
         
-        std::priority_queue<T_Iterators_Pair, std::vector<T_Iterators_Pair>, Compare> q;
+        std::priority_queue<T_Iterators_Pair, std::vector<T_Iterators_Pair>, QueueComparator> q;
         for(const auto& mr : map_results) {
             q.push(std::make_pair(mr.begin(), mr.end()));
         }
         while (!q.empty()) {
             auto it = q.top().first;
             auto it_end = q.top().second;
-            if ((merged_result.size() >= reduce_chunk_size) && (*it != *(merged_result.rbegin()))) {
+            if ((merged_result.size() >= reduce_chunk_size)
+                && !(*it == *(merged_result.rbegin()))
+                && (reduce_workers.size() < (reduce_workers_count - 1)) ) {
+                
                 // ЗАПУСТИТЬ ПОТОК REDUCEER
                 reduce_workers.emplace_back(std::bind(&Job::invoke_reducer, this, std::move(merged_result)));
                 merged_result.clear();
+                
             } else {
+                std::cout << it->get_data() << std::endl;
                 merged_result.push_back(*it);
+                q.pop();
+                if (++it != it_end) {
+                    q.push(std::make_pair(it, it_end));
+                }
             }
-            q.pop();
-            if (++it != it_end) {
-                q.push(std::make_pair(it, it_end));
-            }
+        }
+        if (!merged_result.empty()) {
+            reduce_workers.emplace_back(std::bind(&Job::invoke_reducer, this, std::move(merged_result)));
+            merged_result.clear();
         }
         
         std::for_each(reduce_workers.begin(), reduce_workers.end(), [](std::thread& th) {
             th.join();
         });
+        
+        if (!reduce_results.empty()) {
+            auto it = reduce_results.begin();
+            BinaryOperation op;
+            summary_result = *it;
+            it++;
+            while (it != reduce_results.end()) {
+                summary_result = op(summary_result, *it++);
+            }
+        }
     }
 
 protected:
-	IMapper<T>* mapper {nullptr};
-	IReducer<T>* reducer {nullptr};
+	IMapper<T, Container>* mapper {nullptr};
+	IReducer<T, Result, Container>* reducer {nullptr};
     
-    std::list<T> map_results;
+    std::list<Container> map_results;
     std::mutex map_results_mutex;
+    std::size_t total_results_size {0};
+    
+    std::vector<Result> reduce_results;
+    std::mutex reduce_results_mutex;
+    Result summary_result;
 
 	std::size_t map_workers_count {2};
 	std::size_t reduce_workers_count {2};

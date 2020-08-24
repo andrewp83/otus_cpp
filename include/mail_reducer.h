@@ -3,9 +3,9 @@
 #include "mail_mapper.h"
 #include "reducer.h"
 
-class MailReducer : public mr::IReducer<MailContainer> {
+class MailReducer : public mr::IReducer<MailString, bool, MailContainer> {
 public:
-	virtual void call(const MailContainer& chunk) override;
+	virtual bool call(const MailContainer& chunk) override;
     
-     std::mutex out_m;
+    std::mutex con_m;
 };

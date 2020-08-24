@@ -2,9 +2,9 @@
 
 namespace mr {
 
-template<class T>
+template<class T, class Result, class Container = std::vector<T>>
 struct IReducer {
-	virtual void call(const T& chunk) = 0;
+	virtual Result call(const Container& chunk) = 0;
 };
 
 }

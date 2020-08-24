@@ -17,13 +17,21 @@ int main(int argc, char* argv[]) {
         std::size_t mnum = std::stoi(argv[2]);
         std::size_t rnum = std::stoi(argv[3]);
         
-        MailMapper* mapper = new MailMapper(src_filename);
+        MailMapper* mapper = new MailMapper(src_filename, 3);
         MailReducer* reducer = new MailReducer();
         
-        mr::Job<MailContainer> job(mapper, reducer);
+        struct BinaryOp {
+            bool operator()(bool l, bool r) const {
+                return l && r;
+            }
+        };
+        
+        mr::Job<MailString, bool, BinaryOp, MailContainer> job(mapper, reducer);
         job.set_map_workers_count(mnum);
         job.set_reduce_workers_count(rnum);
         job.wait_for_completion();
+        
+        std::cout << job.get_result() << std::endl;
         
     } catch (const std::exception& ex) {
         std::cerr << "Exception: " << ex.what() << "\n";

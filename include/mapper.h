@@ -3,9 +3,9 @@
 
 namespace mr {
 
-template<class T>
+template<class T, class Container = std::vector<T>>
 struct IMapper {
-	virtual T call(std::size_t chunk_num, std::size_t chunks_count) = 0;
+	virtual Container call(std::size_t chunk_num, std::size_t chunks_count) = 0;
 };
 
 }

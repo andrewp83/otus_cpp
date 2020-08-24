@@ -31,7 +31,7 @@ MailContainer MailMapper::call(std::size_t chunk_num, std::size_t chunks_count) 
     while ( (current_read++ < chunk_size) || ((ch != '\n') && !is_last_chunk) ) {
         fread(&ch, 1, 1, fp);
         if (ch == '\n') {
-            cont.push_back(current_buffer);
+            cont.push_back(MailString(current_buffer, compared_chars));
             //std::cout << current_buffer << std::endl;
             current_buffer.clear();
         } else {
@@ -44,4 +44,20 @@ MailContainer MailMapper::call(std::size_t chunk_num, std::size_t chunks_count) 
     std::sort(cont.begin(), cont.end());
     
 	return cont;
+}
+
+// MailString
+
+bool MailString::operator<(const MailString &other) const {
+    auto it_lhs_end = data.begin();
+    std::advance(it_lhs_end, std::min(compared_chars, data.size()));
+    
+    auto it_rhs_end = other.data.begin();
+    std::advance(it_rhs_end, std::min(compared_chars, other.data.size()));
+    
+    return std::lexicographical_compare(data.begin(), it_lhs_end, other.data.begin(), it_rhs_end);
+}
+
+bool MailString::operator==(const MailString &other) const {
+    return !(*this < other) && !(other < *this);
 }
