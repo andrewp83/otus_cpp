@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "test_join.hpp"
+#include "test_yamr.hpp"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
