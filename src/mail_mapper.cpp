@@ -17,22 +17,26 @@ MailContainer MailMapper::call(std::size_t chunk_num, std::size_t chunks_count) 
     fseek(fp, offset, SEEK_SET);
     
     char ch;
+
+    std::size_t current_read = 0;
     
     // Найти начало email-a
     if (chunk_num > 0) {
-        do {
+        fseek(fp, -1, SEEK_CUR);
+        fread(&ch, 1, 1, fp);
+        while (ch != '\n') {
             fread(&ch, 1, 1, fp);
-        } while (ch != '\n');
+            current_read++;
+        }
     }
     
-    std::size_t current_read = 0;
     std::string current_buffer;
     bool is_last_chunk = (chunk_num == (chunks_count - 1));
-    while ( (current_read++ < chunk_size) || ((ch != '\n') && !is_last_chunk) ) {
+    while ( (current_read++ < chunk_size) || ((ch != '\n') && !is_last_chunk) || (is_last_chunk && !feof(fp)) ) {
         fread(&ch, 1, 1, fp);
-        if (ch == '\n') {
+        if (ch == '\n' || feof(fp)) {
             cont.push_back(MailString(current_buffer, compared_chars));
-            //std::cout << current_buffer << std::endl;
+//            std::cout << chunk_num << ", " << current_buffer << std::endl;
             current_buffer.clear();
         } else {
             current_buffer.push_back(ch);

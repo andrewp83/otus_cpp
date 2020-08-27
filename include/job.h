@@ -11,10 +11,10 @@
 
 namespace mr {
 
-template<class T, class Result, class BinaryOperation, class Container = std::vector<T>>
+template<class T, class Container = std::vector<T>>
 class Job {
 public:
-	Job(IMapper<T, Container>* mapper, IReducer<T, Result, Container>* reducer) : mapper(mapper), reducer(reducer) {}
+	Job(IMapper<T, Container>* mapper, IReducer<T, Container>* reducer) : mapper(mapper), reducer(reducer) {}
 
     void set_map_workers_count(std::size_t count) {
         if (count > 0) {
@@ -42,8 +42,6 @@ public:
         run_reducers();
     }
     
-    Result get_result() const { return summary_result; }
-    
 protected:
     void invoke_mapper(std::size_t chunk_num, std::size_t chunks_count) {
         Container result = mapper->call(chunk_num, chunks_count);
@@ -52,9 +50,8 @@ protected:
         total_results_size += result.size();
     }
     
-    void invoke_reducer(Container chunk) {
-        Result res = reducer->call(chunk);
-        reduce_results.push_back(std::move(res));
+    void invoke_reducer(Container chunk, std::size_t chunk_num) {
+        reducer->call(chunk, chunk_num);
     }
     
     using T_Iterator = typename Container::const_iterator;
@@ -91,12 +88,12 @@ protected:
                 && !(*it == *(merged_result.rbegin()))
                 && (reduce_workers.size() < (reduce_workers_count - 1)) ) {
                 
-                // ЗАПУСТИТЬ ПОТОК REDUCEER
-                reduce_workers.emplace_back(std::bind(&Job::invoke_reducer, this, std::move(merged_result)));
+                // ЗАПУСТИТЬ ПОТОК REDUCER
+                reduce_workers.emplace_back(std::bind(&Job::invoke_reducer, this, std::move(merged_result), reduce_workers.size()));
                 merged_result.clear();
                 
             } else {
-                std::cout << it->get_data() << std::endl;
+                //std::cout << it->get_data() << std::endl;
                 merged_result.push_back(*it);
                 q.pop();
                 if (++it != it_end) {
@@ -105,36 +102,22 @@ protected:
             }
         }
         if (!merged_result.empty()) {
-            reduce_workers.emplace_back(std::bind(&Job::invoke_reducer, this, std::move(merged_result)));
+            reduce_workers.emplace_back(std::bind(&Job::invoke_reducer, this, std::move(merged_result), reduce_workers.size()));
             merged_result.clear();
         }
         
         std::for_each(reduce_workers.begin(), reduce_workers.end(), [](std::thread& th) {
             th.join();
         });
-        
-        if (!reduce_results.empty()) {
-            auto it = reduce_results.begin();
-            BinaryOperation op;
-            summary_result = *it;
-            it++;
-            while (it != reduce_results.end()) {
-                summary_result = op(summary_result, *it++);
-            }
-        }
     }
 
 protected:
 	IMapper<T, Container>* mapper {nullptr};
-	IReducer<T, Result, Container>* reducer {nullptr};
+	IReducer<T, Container>* reducer {nullptr};
     
     std::list<Container> map_results;
     std::mutex map_results_mutex;
     std::size_t total_results_size {0};
-    
-    std::vector<Result> reduce_results;
-    std::mutex reduce_results_mutex;
-    Result summary_result;
 
 	std::size_t map_workers_count {2};
 	std::size_t reduce_workers_count {2};
