@@ -1,7 +1,10 @@
 #pragma once
 
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <list>
+#include <mutex>
 #include <thread>
 #include <queue>
 #include <vector>
