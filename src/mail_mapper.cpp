@@ -1,5 +1,6 @@
 #include "mail_mapper.h"
 
+#include <algorithm>
 #include <iostream>
 #include <filesystem>
 
@@ -36,7 +37,6 @@ MailContainer MailMapper::call(std::size_t chunk_num, std::size_t chunks_count) 
         fread(&ch, 1, 1, fp);
         if (ch == '\n' || feof(fp)) {
             cont.push_back(MailString(current_buffer, compared_chars));
-//            std::cout << chunk_num << ", " << current_buffer << std::endl;
             current_buffer.clear();
         } else {
             current_buffer.push_back(ch);
