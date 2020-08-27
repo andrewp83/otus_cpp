@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "mapper.h"
 #include "mail_mapper.h"
