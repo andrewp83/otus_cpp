@@ -7,55 +7,36 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(yamr VERSION 0.0.${COMMON_TBN})
+project(kkmeans VERSION 0.0.${COMMON_TBN})
 
-set(SOURCES src/mail_mapper.cpp
-            src/mail_reducer.cpp
-            src/job.cpp
-)
+#set(SOURCES src/mail_mapper.cpp)
 
-set(HEADERS include/mapper.h
-            include/mail_mapper.h
-            include/reducer.h
-            include/mail_reducer.h
-            include/job.h
-)
+#set(HEADERS include/mapper.h)
 
-find_package(GTest REQUIRED)
-find_package(Threads REQUIRED)
-#find_package(Boost REQUIRED system)
 
-#include_directories(${Boost_INCLUDE_DIR})
+find_package(dlib REQUIRED)
+set(DLIB dlib::dlib)
+include_directories(${dlib_INCLUDE_DIRS})
+
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(yamr ${SOURCES} ${HEADERS} main.cpp)
+add_executable(kkmeans main.cpp)
 
-add_executable(test_yamr ${SOURCES} ${HEADERS} test/test_yamr.hpp test/test_main.cpp)
-
-target_include_directories(yamr PRIVATE ./ src/ include/)
-target_link_libraries(yamr PRIVATE ${CMAKE_THREAD_LIBS_INIT})
-
-target_include_directories(test_yamr PRIVATE ${GTEST_INCLUDE_DIRS} test/ include/)
-target_link_libraries(test_yamr PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+#target_include_directories(kkmeans PRIVATE ./ src/ include/)
+target_link_libraries(kkmeans PRIVATE ${DLIB})
 
 if (MSVC)
-    target_compile_options(yamr PRIVATE
-        /W4
-    )
-    target_compile_options(test_yamr PRIVATE
+    target_compile_options(kkmeans PRIVATE
         /W4
     )
 else ()
-    target_compile_options(yamr PRIVATE
-        -Wall -Wextra -pedantic -Werror
-    )
-    target_compile_options(test_yamr PRIVATE
-        -Wall -Wextra -pedantic -Werror
+    target_compile_options(kkmeans PRIVATE
+        -Wall -Wextra -pedantic
     )
 endif()
 
-install(TARGETS yamr RUNTIME DESTINATION bin)
+install(TARGETS kkmeans RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -67,5 +48,3 @@ set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
 
-enable_testing()
-add_test(test_yamr test_yamr)
