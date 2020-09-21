@@ -9,18 +9,21 @@ endif()
 
 project(task_mgr VERSION 0.0.${COMMON_TBN})
 
+set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_32_64_BIT)")
+
 find_package(GTest REQUIRED)
-find_package(Threads REQUIRED)
+#find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS graph REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 
-set(SOURCES src/job.cpp
+set(SOURCES src/task.cpp
+            src/job.cpp
             src/job_manager.cpp
             src/thread_pool.cpp
             src/thread_worker.cpp)
 
-set(HEADERS include/task.hpp
+set(HEADERS include/task.h
             include/exception.hpp
             include/job_manager.h
             include/job.h

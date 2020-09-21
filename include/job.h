@@ -8,7 +8,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 
-#include "task.hpp"
+#include "task.h"
 #include "thread_pool.h"
 
 namespace task_mgr {
