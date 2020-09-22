@@ -9,7 +9,6 @@ endif()
 
 project(task_mgr VERSION 0.0.${COMMON_TBN})
 
-set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD_32_64_BIT)")
 
 find_package(GTest REQUIRED)
 #find_package(Threads REQUIRED)
@@ -39,6 +38,7 @@ set_target_properties(task_mgr PROPERTIES LINKER_LANGUAGE CXX)
 add_executable(test_task_mgr ${SOURCES} 
 							 ${HEADERS}
 							 test/test_task_mgr.hpp
+                             test/test_job_mgr.hpp
 							 test/test_main.cpp)
 
 target_include_directories(task_mgr PRIVATE . src/ include/)

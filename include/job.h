@@ -9,22 +9,37 @@
 #include <boost/graph/depth_first_search.hpp>
 
 #include "task.h"
-#include "thread_pool.h"
 
 namespace task_mgr {
 
 class ThreadWorker;
+class ThreadPool;
 
-class Job {
+struct IJob {
+    virtual TaskPtr get_task_by_tag(int tag) const = 0;
+};
+
+
+class Job : public IJob {
 public:
-    void add_task(TaskPtr task);
-    void add_dependency(TaskPtr target, TaskPtr source);
+    class Configurator {
+    public:
+        void add_task(TaskPtr task);
+        void add_dependency(TaskPtr target, TaskPtr source);
+        void set_finish_callback(const std::function<void(IJob*)>& callback);
+        
+    private:
+        friend class Job;
+        std::vector<TaskPtr> tasks;
+        std::vector<std::pair<TaskPtr, TaskPtr>> dependencies;
+        std::function<void(IJob*)> finish_callback;
+    };
     
-    void run();
+public:
+    Job(const Configurator& config, ThreadPool* thread_pool);
+    virtual ~Job() {}
     
-    void set_finish_callback(const std::function<void(Job*)>& callback);
-    
-    TaskPtr get_task_by_tag(int tag) const;
+    virtual TaskPtr get_task_by_tag(int tag) const override;
     
 private:
     using TaskGraph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, TaskPtr>;
@@ -33,6 +48,11 @@ private:
     using TaskVertexList = std::list<TaskVertex>;
     
 private:
+    void add_task(TaskPtr task);
+    void add_dependency(TaskPtr target, TaskPtr source);
+    
+    void run();
+    
     void run_next(TaskPtr completed_task);
     
     void push_task(TaskPtr task);
@@ -48,6 +68,9 @@ private:
     
 private:
     friend class ThreadWorker;
+    friend class JobManager;
+    
+    ThreadPool* thread_pool {nullptr};
         
     TaskGraph tasks_graph;
     
@@ -72,11 +95,11 @@ private:
     
     std::function<void(Job*)> finish_callback;
     
-    static ThreadPool thread_pool;
-    
     std::mutex job_mutex;
     
     std::size_t tasks_completed {0};
 };
+
+using JobPtr = std::shared_ptr<Job>;
 
 }

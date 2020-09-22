@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "test_task_mgr.hpp"
+#include "test_job_mgr.hpp"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

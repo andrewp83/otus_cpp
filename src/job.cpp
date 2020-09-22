@@ -4,15 +4,44 @@
 #include <iostream>
 
 #include "exception.hpp"
+#include "thread_pool.h"
 
 namespace task_mgr {
 
 #define PRINT(msg) \
     std::cout << (msg) << std::endl;
 
+// JobConfigurator
+
+void Job::Configurator::add_task(TaskPtr task) {
+    tasks.push_back(task);
+}
+
+void Job::Configurator::add_dependency(TaskPtr target, TaskPtr source) {
+    dependencies.emplace_back(target, source);
+}
+
+void Job::Configurator::set_finish_callback(const std::function<void(IJob*)>& callback) {
+    finish_callback = callback;
+}
 
 
-ThreadPool Job::thread_pool;
+// Job
+
+
+Job::Job(const Job::Configurator& config, ThreadPool* thread_pool) {
+    std::for_each(config.tasks.begin(), config.tasks.end(), [this](TaskPtr task){
+        add_task(task);
+    });
+    
+    this->thread_pool = thread_pool;
+    
+    finish_callback = config.finish_callback;
+    
+    std::for_each(config.dependencies.begin(), config.dependencies.end(), [this](const std::pair<TaskPtr, TaskPtr>& _p){
+        add_dependency(_p.first, _p.second);
+    });
+}
 
 void Job::add_task(TaskPtr task) {
     
@@ -80,6 +109,8 @@ const Job::TaskVertex& Job::get_vertex_by_task(TaskPtr task) const {
 void Job::run() {
     std::lock_guard<std::mutex> lock(job_mutex);
     
+    tasks_completed = 0;
+    
     // SCHEDULE
     make_tasks_order();
     
@@ -94,10 +125,8 @@ void Job::run() {
     //std::cout << (tasks_order.begin() == it) << std::endl;
     std::for_each(tasks_order.begin(), it, [this](const TaskVertex& vertex) {
         TaskPtr task = get_task_by_vertex(vertex);
-        thread_pool.push_task(task);
+        thread_pool->push_task(task);
     });
-    
-    tasks_completed = 0;
 }
 
 void Job::run_next(TaskPtr task_completed) {
@@ -114,7 +143,7 @@ void Job::run_next(TaskPtr task_completed) {
             return task->is_finished();
         });
         if (all_finished) {
-            thread_pool.push_task(task);
+            thread_pool->push_task(task);
         }
     };
     
@@ -141,10 +170,6 @@ void Job::task_finished(TaskPtr task) {
     } else if (finish_callback) {
         finish_callback(this);
     }
-}
-
-void Job::set_finish_callback(const std::function<void(Job*)>& callback) {
-    this->finish_callback = callback;
 }
 
 TaskPtr Job::get_task_by_tag(int tag) const {

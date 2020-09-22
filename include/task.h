@@ -24,6 +24,8 @@ class Job;
 class Task {
     friend class Job;
 public:
+    virtual ~Task() {}
+    
     Job* get_job() { return job; }
     
     const TaskResult& get_result() const { return result; }

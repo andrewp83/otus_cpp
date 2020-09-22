@@ -2,16 +2,17 @@
 
 namespace task_mgr {
 
-ThreadPool::ThreadPool() {
-    for (std::size_t i = 0; i < THREADS_COUNT; i++) {
+const std::size_t ThreadPool::DEFAULT_THREADS_COUNT = 1;
+
+ThreadPool::ThreadPool(std::size_t threads_count) {
+    for (std::size_t i = 0; i < threads_count; i++) {
         workers.emplace_back(*this);
     }
 }
 
-ThreadPool::~ThreadPool() {
-    std::lock_guard<std::mutex> lock(queue_mutex); // Thread sanitizer warning fix
+void ThreadPool::stop() {
+    workers.clear();
 }
-
 
 void ThreadPool::push_task(TaskPtr task) {
     {
