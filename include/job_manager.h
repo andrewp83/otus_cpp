@@ -23,7 +23,7 @@ public:
     
     void run_job_delayed(const Job::Configurator& job_config, const std::chrono::milliseconds& delay);
     
-    void run_job_repeatedly(const Job::Configurator& job_config, const std::chrono::milliseconds& interval);
+    void run_job_scheduled(const Job::Configurator& job_config, const std::chrono::milliseconds& interval);
 
 private:
     JobManager() {}
@@ -34,8 +34,6 @@ private:
     
     ~JobManager();
     
-    void update_jobs_schedule();
-    
     void manage_jobs();
     
 private:
@@ -44,13 +42,13 @@ private:
     ThreadPool* thread_pool {nullptr};
     
     struct JobRunInfo {
-        JobRunInfo(JobPtr job, std::time_t next_run_time, std::time_t interval = 0)
+        JobRunInfo(JobPtr job, std::chrono::system_clock::time_point next_run_time, std::chrono::milliseconds interval)
         : job(job)
         , next_run_time(next_run_time)
         , interval(interval) {}
         
         JobPtr job;
-        std::chrono::milliseconds next_run_time;
+        std::chrono::system_clock::time_point next_run_time;
         std::chrono::milliseconds interval;
         
         bool operator<(const JobRunInfo& other) const {
@@ -60,7 +58,7 @@ private:
     
     std::priority_queue<JobRunInfo> jobs;
     
-    std::list<JobRunInfo> running_jobs;
+    //std::list<JobRunInfo> running_jobs; // УДАЛИТЬ И ПРОВЕРИТЬ МАГИЮ shared_from_this
     
     std::thread t;
     std::condition_variable cv;

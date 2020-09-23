@@ -33,39 +33,35 @@ void JobManager::stop() {
 }
 
 void JobManager::run_job_once(const Job::Configurator& job_config) {
-    JobPtr job = std::make_shared<Job>(job_config, thread_pool);
+    JobPtr job = Job::create(job_config, thread_pool);
     {
         std::lock_guard<std::mutex> lock(cv_m);
-        jobs.emplace(job, 0);
+        jobs.emplace(job, std::chrono::system_clock::now(), std::chrono::milliseconds::zero());
     }
     cv.notify_one();
     //update_jobs_schedule();
 }
 
 void JobManager::run_job_delayed(const Job::Configurator& job_config, const std::chrono::milliseconds& delay) {
-    JobPtr job = std::make_shared<Job>(job_config, thread_pool);
+    JobPtr job = Job::create(job_config, thread_pool);
     {
         std::lock_guard<std::mutex> lock(cv_m);
         auto start = std::chrono::system_clock::now();
         start += delay;
-        jobs.emplace(job, start);
+        jobs.emplace(job, start, std::chrono::milliseconds::zero());
     }
     cv.notify_one();
 }
 
-void JobManager::run_job_repeatedly(const Job::Configurator& job_config, const std::chrono::milliseconds& interval) {
-    JobPtr job = std::make_shared<Job>(job_config, thread_pool);
+void JobManager::run_job_scheduled(const Job::Configurator& job_config, const std::chrono::milliseconds& interval) {
+    JobPtr job = Job::create(job_config, thread_pool);
     {
         std::lock_guard<std::mutex> lock(cv_m);
         auto start = std::chrono::system_clock::now();
         start += interval;
-        jobs.emplace(job, start);
+        jobs.emplace(job, start, interval);
     }
     cv.notify_one();
-}
-
-void JobManager::update_jobs_schedule() {
-    
 }
 
 void JobManager::manage_jobs() {
@@ -79,7 +75,7 @@ void JobManager::manage_jobs() {
             if (status == std::cv_status::timeout) {
                 // ВЫПОЛНИТЬ ЗАДАЧУ
                 job_info.job->run();
-                running_jobs.push_back(job_info);
+                //running_jobs.push_back(job_info);
                 jobs.pop();
             }
         } else {

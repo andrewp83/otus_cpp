@@ -28,6 +28,9 @@ void Job::Configurator::set_finish_callback(const std::function<void(IJob*)>& ca
 
 // Job
 
+JobPtr Job::create(const Configurator &config, ThreadPool *thread_pool) {
+    return std::shared_ptr<Job>(new Job(config, thread_pool));
+}
 
 Job::Job(const Job::Configurator& config, ThreadPool* thread_pool) {
     std::for_each(config.tasks.begin(), config.tasks.end(), [this](TaskPtr task){
@@ -107,9 +110,19 @@ const Job::TaskVertex& Job::get_vertex_by_task(TaskPtr task) const {
 }
 
 void Job::run() {
+    if (_self) {
+        throw job_is_running();
+    }
+    
     std::lock_guard<std::mutex> lock(job_mutex);
     
     tasks_completed = 0;
+    
+    std::for_each(task_vertexes.begin(), task_vertexes.end(), [](boost::bimap<TaskPtr, TaskVertex>::value_type& _p) {
+        return _p.get_left_pair().first->init();
+    });
+    
+    _self = shared_from_this();
     
     // SCHEDULE
     make_tasks_order();
@@ -169,6 +182,7 @@ void Job::task_finished(TaskPtr task) {
         run_next(task);
     } else if (finish_callback) {
         finish_callback(this);
+        _self.reset(); // НА ГРАНИ ФОЛА (ИЛИ ЗА НЕЙ...)
     }
 }
 

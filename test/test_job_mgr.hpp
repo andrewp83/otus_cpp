@@ -81,9 +81,18 @@ protected:
 
 TEST_F(JobManagerTest, DelayedRun) {
     
-    float delay = 2;
+    JobManager::get_instance()->run_job_delayed(job_simple_sum_config, std::chrono::milliseconds(5000));
+
+    while (!res) {
+        std::this_thread::sleep_for(0.1s);
+    }
+
+    ASSERT_EQ(res, 42) << " base fix job failed";
+}
+
+TEST_F(JobManagerTest, SheduledRun) {
     
-    JobManager::get_instance()->run_job_delayed(job_simple_sum_config);
+    JobManager::get_instance()->run_job_scheduled(job_simple_sum_config, std::chrono::milliseconds(5000));
 
     while (!res) {
         std::this_thread::sleep_for(0.1s);

@@ -49,6 +49,10 @@ protected:
         callback();
     }
     
+    void init() {
+        _is_finished = false;
+    }
+    
 protected:
     Job* job {nullptr};
     

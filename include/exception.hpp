@@ -18,5 +18,9 @@ struct duplicate_task : public bad_task {
     duplicate_task() : bad_task("Task can be added only once.") {}
 };
 
+struct job_is_running : public bad_task {
+    job_is_running() : bad_task("Job is running already.") {}
+};
+
 }
 

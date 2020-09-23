@@ -2,6 +2,7 @@
 
 #include <list>
 #include <map>
+#include <iostream>
 
 #include <boost/bimap.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -19,8 +20,9 @@ struct IJob {
     virtual TaskPtr get_task_by_tag(int tag) const = 0;
 };
 
+using JobPtr = std::shared_ptr<Job>;
 
-class Job : public IJob {
+class Job : public IJob, public std::enable_shared_from_this<Job> {
 public:
     class Configurator {
     public:
@@ -36,8 +38,11 @@ public:
     };
     
 public:
-    Job(const Configurator& config, ThreadPool* thread_pool);
-    virtual ~Job() {}
+    static JobPtr create(const Configurator& config, ThreadPool* thread_pool);
+    
+    virtual ~Job() {
+        std::cout << "Job::~Job()" << std::endl;
+    }
     
     virtual TaskPtr get_task_by_tag(int tag) const override;
     
@@ -48,6 +53,8 @@ private:
     using TaskVertexList = std::list<TaskVertex>;
     
 private:
+    Job(const Configurator& config, ThreadPool* thread_pool);
+    
     void add_task(TaskPtr task);
     void add_dependency(TaskPtr target, TaskPtr source);
     
@@ -98,8 +105,9 @@ private:
     std::mutex job_mutex;
     
     std::size_t tasks_completed {0};
+    
+    JobPtr _self;
 };
 
-using JobPtr = std::shared_ptr<Job>;
 
 }
