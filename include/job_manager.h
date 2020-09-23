@@ -24,6 +24,8 @@ public:
     void run_job_delayed(const Job::Configurator& job_config, const std::chrono::milliseconds& delay);
     
     void run_job_scheduled(const Job::Configurator& job_config, const std::chrono::milliseconds& interval);
+    
+    void cancel_job_by_tag(int tag);
 
 private:
     JobManager() {}
@@ -52,19 +54,19 @@ private:
         std::chrono::milliseconds interval;
         
         bool operator<(const JobRunInfo& other) const {
-            return next_run_time < other.next_run_time;
+            return next_run_time > other.next_run_time;
         }
     };
     
     std::priority_queue<JobRunInfo> jobs;
-    
-    //std::list<JobRunInfo> running_jobs; // УДАЛИТЬ И ПРОВЕРИТЬ МАГИЮ shared_from_this
     
     std::thread t;
     std::condition_variable cv;
     std::mutex cv_m;
     
     std::atomic<bool> quit {false};
+    
+    std::unordered_set<int> canceled_job_tags;
 };
 
 

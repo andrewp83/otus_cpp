@@ -36,7 +36,6 @@ void ThreadWorker::run() {
             process_task(task);
         }
     }
-    std::cout << "ThreadWorker::run" << std::endl;
 }
 
 }

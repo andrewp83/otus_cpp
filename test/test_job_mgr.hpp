@@ -20,6 +20,8 @@ public:
         std::this_thread::sleep_for(0.1s);
         res = 42;
         result = TaskResult(&res, sizeof(res));
+        
+        //std::cout << "TaskBase::run()" << std::endl;
     }
 private:
     int res {0};
@@ -57,7 +59,7 @@ protected:
     virtual void SetUp() {
         JobManager::get_instance()->start();
         
-        res = 0;
+        res = total_res = 0;
         
         TaskPtr task = std::make_shared<TaskBase>();
         task->set_tag(42);
@@ -68,6 +70,14 @@ protected:
         });
         
         
+        job_schedule_config.add_task(task);
+        job_schedule_config.set_tag(33);
+        job_schedule_config.set_finish_callback([&](IJob* job){
+            TaskPtr task = job->get_task_by_tag(42);
+            res = *((int*)(task->get_result().get_data()));
+            total_res += res;
+        });
+        
     }
 
     virtual void TearDown() {
@@ -77,11 +87,14 @@ protected:
     std::atomic<int> res;
     
     Job::Configurator job_simple_sum_config;
+    Job::Configurator job_schedule_config;
+    
+    std::atomic<int> total_res;
 };
 
 TEST_F(JobManagerTest, DelayedRun) {
     
-    JobManager::get_instance()->run_job_delayed(job_simple_sum_config, std::chrono::milliseconds(5000));
+    JobManager::get_instance()->run_job_delayed(job_simple_sum_config, std::chrono::milliseconds(2000));
 
     while (!res) {
         std::this_thread::sleep_for(0.1s);
@@ -92,12 +105,12 @@ TEST_F(JobManagerTest, DelayedRun) {
 
 TEST_F(JobManagerTest, SheduledRun) {
     
-    JobManager::get_instance()->run_job_scheduled(job_simple_sum_config, std::chrono::milliseconds(5000));
+    JobManager::get_instance()->run_job_scheduled(job_schedule_config, std::chrono::milliseconds(1000));
+    
+    std::this_thread::sleep_for(6s);
+    
+    JobManager::get_instance()->cancel_job_by_tag(33);
 
-    while (!res) {
-        std::this_thread::sleep_for(0.1s);
-    }
-
-    ASSERT_EQ(res, 42) << " base fix job failed";
+    ASSERT_EQ(total_res, 42 * 5);
 }
 

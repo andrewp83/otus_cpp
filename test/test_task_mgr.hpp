@@ -69,7 +69,7 @@ public:
     }
 
     virtual void callback() override {
-        std::cout << "TestMulTask finished " << std::endl;
+        //std::cout << "TestMulTask finished " << std::endl;
     }
 
 private:
@@ -90,7 +90,7 @@ public:
     }
 
     virtual void callback() override {
-        std::cout << "TestFactorialTask finished " << std::endl;
+        //std::cout << "TestFactorialTask finished " << std::endl;
     }
 
 private:

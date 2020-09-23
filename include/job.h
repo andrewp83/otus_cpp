@@ -29,19 +29,20 @@ public:
         void add_task(TaskPtr task);
         void add_dependency(TaskPtr target, TaskPtr source);
         void set_finish_callback(const std::function<void(IJob*)>& callback);
+        void set_tag(int tag);
         
     private:
         friend class Job;
         std::vector<TaskPtr> tasks;
         std::vector<std::pair<TaskPtr, TaskPtr>> dependencies;
         std::function<void(IJob*)> finish_callback;
+        int tag {0};
     };
     
 public:
     static JobPtr create(const Configurator& config, ThreadPool* thread_pool);
     
     virtual ~Job() {
-        std::cout << "Job::~Job()" << std::endl;
     }
     
     virtual TaskPtr get_task_by_tag(int tag) const override;
@@ -72,6 +73,9 @@ private:
     
     TaskPtr get_task_by_vertex(const TaskVertex& vertex) const;
     const TaskVertex& get_vertex_by_task(TaskPtr task) const;
+    
+    void set_tag(int tag);
+    int get_tag() const;
     
 private:
     friend class ThreadWorker;
@@ -107,6 +111,8 @@ private:
     std::size_t tasks_completed {0};
     
     JobPtr _self;
+    
+    int tag {0};
 };
 
 

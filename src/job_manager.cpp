@@ -70,19 +70,35 @@ void JobManager::manage_jobs() {
         
         if (!jobs.empty()) {
             const JobRunInfo& job_info = jobs.top();
+            
             auto next_time = job_info.next_run_time;
+            
             auto status = cv.wait_until(lk, next_time);
+            
             if (status == std::cv_status::timeout) {
                 // ВЫПОЛНИТЬ ЗАДАЧУ
-                job_info.job->run();
-                //running_jobs.push_back(job_info);
-                jobs.pop();
+                if (next_time <= std::chrono::system_clock::now()) {
+                    bool is_job_canceled = (canceled_job_tags.count(job_info.job->get_tag()) > 0);
+                    if (!is_job_canceled) {
+                        job_info.job->run();
+                        if (job_info.interval != std::chrono::milliseconds::zero()) {
+                            auto next_run_time = job_info.next_run_time + job_info.interval;
+                            jobs.emplace(job_info.job, next_run_time, job_info.interval);
+                        }
+                    }
+                    jobs.pop();
+                }
             }
         } else {
             // ЖДАТЬ ТОЛЬКО УСЛОВНУЮ ПЕРЕМЕННУЮ (ТО ЕСТЬ ПОКА В ОЧЕРЕДИ ПОЯВЯТСЯ ЗАДАЧИ)
             cv.wait(lk, [this]() { return !jobs.empty() || quit; });
         }
     }
+}
+
+void JobManager::cancel_job_by_tag(int tag) {
+    std::lock_guard<std::mutex> lk(cv_m);
+    canceled_job_tags.insert(tag);
 }
 
 JobManager::~JobManager() {

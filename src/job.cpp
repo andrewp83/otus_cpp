@@ -25,6 +25,10 @@ void Job::Configurator::set_finish_callback(const std::function<void(IJob*)>& ca
     finish_callback = callback;
 }
 
+void Job::Configurator::set_tag(int tag) {
+    this->tag = tag;
+}
+
 
 // Job
 
@@ -40,6 +44,8 @@ Job::Job(const Job::Configurator& config, ThreadPool* thread_pool) {
     this->thread_pool = thread_pool;
     
     finish_callback = config.finish_callback;
+    
+    tag = config.tag;
     
     std::for_each(config.dependencies.begin(), config.dependencies.end(), [this](const std::pair<TaskPtr, TaskPtr>& _p){
         add_dependency(_p.first, _p.second);
@@ -110,11 +116,12 @@ const Job::TaskVertex& Job::get_vertex_by_task(TaskPtr task) const {
 }
 
 void Job::run() {
+    
+    std::lock_guard<std::mutex> lock(job_mutex);
+    
     if (_self) {
         throw job_is_running();
     }
-    
-    std::lock_guard<std::mutex> lock(job_mutex);
     
     tasks_completed = 0;
     
@@ -194,6 +201,14 @@ TaskPtr Job::get_task_by_tag(int tag) const {
         return nullptr;
     }
     return it->get_left_pair().first;
+}
+
+void Job::set_tag(int tag) {
+    this->tag = tag;
+}
+
+int Job::get_tag() const {
+    return tag;
 }
 
 }
