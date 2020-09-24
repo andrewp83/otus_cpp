@@ -256,17 +256,17 @@ TEST(test_job, base_dependency_tasks) {
 
 
 TEST(test_job, complex_linked_tasks) {
-    JobManager::get_instance()->start();
+    //JobManager::get_instance()->start();
 
-    JobConfigurator job_config;
+    //JobConfigurator job_config;
 
     std::filesystem::create_directories("test/data");
 
     // https://www.boost.org/doc/libs/1_74_0/libs/graph/doc/figs/file_dep.gif
 
     // ТАСКИ 1 УРОВНЯ
-    TaskPtr dax_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "dax.h");
-    job_config.add_task(dax_task);
+//    TaskPtr dax_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "dax.h");
+//    job_config.add_task(dax_task);
 //    TaskPtr zow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "zow.h");
 //    job_config.add_task(zow_task);
 //    TaskPtr yow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "yow.h");
@@ -332,17 +332,17 @@ TEST(test_job, complex_linked_tasks) {
 //        finished = true;
 //    });
 
-    JobManager::get_instance()->run_job_once(job_config);
+//    JobManager::get_instance()->run_job_once(job_config);
 
 //    while (!finished) {
-        std::this_thread::sleep_for(5.1s);
+//        std::this_thread::sleep_for(5.1s);
 //    }
 
     ASSERT_TRUE(1);
     
     //ASSERT_TRUE(std::filesystem::exists("test/data/killerapp")) << " target file \"killerapp\" not created.";
 
-    JobManager::get_instance()->stop();
+//    JobManager::get_instance()->stop();
 
     //std::filesystem::remove_all("test/data");
 }
