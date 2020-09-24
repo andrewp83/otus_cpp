@@ -23,11 +23,11 @@ public:
     virtual ~TestProcessingTask() {}
     
     virtual void run(IJob*) override {
-        for (const auto& file : source_files) {
-            open_file(file);
-        }
+//        for (const auto& file : source_files) {
+//            open_file(file);
+//        }
         std::this_thread::sleep_for(0.5s);
-        save_file(target_file);
+//        save_file(target_file);
     }
     
     virtual void callback(IJob*) override {
