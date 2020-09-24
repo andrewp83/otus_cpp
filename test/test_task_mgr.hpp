@@ -143,40 +143,40 @@ TEST(test_job, base_multi_tasks) {
     JobManager::get_instance()->stop();
 }
 
-//
-//// ВЫПОЛНЕНИЕ НЕСКОЛЬКИХ СВЯЗАННЫХ ЗАДАЧ
-//TEST(test_job, base_multi_related_tasks) {
-//    std::atomic<int> sum = 0, mul = 0, fact = 0;
-//
-//    JobManager::get_instance()->start();
-//
-//    JobConfigurator job_config;
-//
-//    TaskPtr sum_task = std::make_shared<TestSumTask>(3, 2);
-//    TaskPtr mul_task = std::make_shared<TestMultiTask>(5, 4);
-//    TaskPtr fact_task = std::make_shared<TestFactorialTask>(5);
-//
-//    job_config.add_task(sum_task);
-//    job_config.add_task(mul_task);
-//    job_config.add_task(fact_task);
-//    job_config.set_finish_callback([&](IJob*){
-//        sum = *((int*)(sum_task->get_result().get_data()));
-//        mul = *((int*)(mul_task->get_result().get_data()));
-//        fact = *((int*)(fact_task->get_result().get_data()));
-//    });
-//    JobManager::get_instance()->run_job_once(job_config);
-//
-//    while (!sum || !mul || !fact) {
-//        std::this_thread::sleep_for(0.1s);
-//    }
-//
-//    ASSERT_EQ(sum, 5) << "sum task is wrong";
-//    ASSERT_EQ(mul, 20) << "mul task is wrong";
-//    ASSERT_EQ(fact, 120) << "sum task is wrong";
-//
-//    JobManager::get_instance()->stop();
-//}
-//
+
+// ВЫПОЛНЕНИЕ НЕСКОЛЬКИХ СВЯЗАННЫХ ЗАДАЧ
+TEST(test_job, base_multi_related_tasks) {
+    std::atomic<int> sum = 0, mul = 0, fact = 0;
+
+    JobManager::get_instance()->start();
+
+    JobConfigurator job_config;
+
+    TaskPtr sum_task = std::make_shared<TestSumTask>(3, 2);
+    TaskPtr mul_task = std::make_shared<TestMultiTask>(5, 4);
+    TaskPtr fact_task = std::make_shared<TestFactorialTask>(5);
+
+    job_config.add_task(sum_task);
+    job_config.add_task(mul_task);
+    job_config.add_task(fact_task);
+    job_config.set_finish_callback([&](IJob*){
+        sum = *((int*)(sum_task->get_result().get_data()));
+        mul = *((int*)(mul_task->get_result().get_data()));
+        fact = *((int*)(fact_task->get_result().get_data()));
+    });
+    JobManager::get_instance()->run_job_once(job_config);
+
+    while (!sum || !mul || !fact) {
+        std::this_thread::sleep_for(0.1s);
+    }
+
+    ASSERT_EQ(sum, 5) << "sum task is wrong";
+    ASSERT_EQ(mul, 20) << "mul task is wrong";
+    ASSERT_EQ(fact, 120) << "sum task is wrong";
+
+    JobManager::get_instance()->stop();
+}
+
 //// ВЫПОЛЕНИЕ ЗАВИСИМЫХ ЗАДАЧ
 //
 //static const int TAG_SUM_TASK = 1;
