@@ -252,95 +252,95 @@ TEST(test_job, base_dependency_tasks) {
 //// TO DO ....
 //
 //
-//// ПРОВЕРКА НА СЛОЖНОЕ ДЕРЕВО ЗАВИСИМОСТЕЙ
-//
-//
-//TEST(test_job, complex_linked_tasks) {
-//    JobManager::get_instance()->start();
-//
-//    JobConfigurator job_config;
-//
-//    std::filesystem::create_directories("test/data");
-//
-//    // https://www.boost.org/doc/libs/1_74_0/libs/graph/doc/figs/file_dep.gif
-//
-//    // ТАСКИ 1 УРОВНЯ
-//    TaskPtr dax_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "dax.h");
-//    job_config.add_task(dax_task);
-//    TaskPtr zow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "zow.h");
-//    job_config.add_task(zow_task);
-//    TaskPtr yow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "yow.h");
-//    job_config.add_task(yow_task);
-//    TaskPtr boz_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "boz.h");
-//    job_config.add_task(boz_task);
-//
-//    // ТАСКИ СЛЕДУЮЩИХ УРОВНЕЙ
-//    TaskPtr foo_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zow.h", "dax.h"}, "foo.cpp");
-//    job_config.add_task(foo_cpp_task);
-//    job_config.add_dependency(foo_cpp_task, zow_task);
-//    job_config.add_dependency(foo_cpp_task, dax_task);
-//
-//    TaskPtr bar_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "dax.h", "boz.h"}, "bar.cpp");
-//    job_config.add_task(bar_cpp_task);
-//    job_config.add_dependency(bar_cpp_task, yow_task);
-//    job_config.add_dependency(bar_cpp_task, dax_task);
-//    job_config.add_dependency(bar_cpp_task, boz_task);
-//
-//    TaskPtr zig_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"boz.h"}, "zig.cpp");
-//    job_config.add_task(zig_cpp_task);
-//    job_config.add_dependency(zig_cpp_task, boz_task);
-//
-//    TaskPtr zag_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "boz.h"}, "zag.cpp");
-//    job_config.add_task(zag_cpp_task);
-//    job_config.add_dependency(zag_cpp_task, yow_task);
-//    job_config.add_dependency(zag_cpp_task, boz_task);
-//
-//    TaskPtr foo_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.cpp"}, "foo.o");
-//    job_config.add_task(foo_o_task);
-//    job_config.add_dependency(foo_o_task, foo_cpp_task);
-//
-//    TaskPtr bar_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"bar.cpp"}, "bar.o");
-//    job_config.add_task(bar_o_task);
-//    job_config.add_dependency(bar_o_task, bar_cpp_task);
-//
-//    TaskPtr libfoobar_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.o", "bar.o"}, "libfoobar.a");
-//    job_config.add_task(libfoobar_task);
-//    job_config.add_dependency(libfoobar_task, foo_o_task);
-//    job_config.add_dependency(libfoobar_task, bar_o_task);
-//
-//    TaskPtr zig_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zig.cpp"}, "zig.o");
-//    job_config.add_task(zig_o_task);
-//    job_config.add_dependency(zig_o_task, zig_cpp_task);
-//
-//    TaskPtr zag_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zag.cpp"}, "zag.o");
-//    job_config.add_task(zag_o_task);
-//    job_config.add_dependency(zag_o_task, zag_cpp_task);
-//
-//    TaskPtr libzigzag_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libfoobar.a", "zig.o", "zag.o"}, "libzigzag.a");
-//    job_config.add_task(libzigzag_task);
-//    job_config.add_dependency(libzigzag_task, libfoobar_task);
-//    job_config.add_dependency(libzigzag_task, zig_o_task);
-//    job_config.add_dependency(libzigzag_task, zag_o_task);
-//
-//    TaskPtr killerapp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libzigzag.a"}, "killerapp");
-//    job_config.add_task(killerapp_task);
-//    killerapp_task->set_tag(334);
-//    job_config.add_dependency(killerapp_task, libzigzag_task);
-//
-//    bool finished = false;
-//    job_config.set_finish_callback([&finished](IJob*){
-//        finished = true;
-//    });
-//
-//    JobManager::get_instance()->run_job_once(job_config);
-//
-//    while (!finished) {
-//        std::this_thread::sleep_for(0.1s);
-//    }
-//
-//    ASSERT_TRUE(std::filesystem::exists("test/data/killerapp")) << " target file \"killerapp\" not created.";
-//
-//    JobManager::get_instance()->stop();
-//
-//    std::filesystem::remove_all("test/data");
-//}
+// ПРОВЕРКА НА СЛОЖНОЕ ДЕРЕВО ЗАВИСИМОСТЕЙ
+
+
+TEST(test_job, complex_linked_tasks) {
+    JobManager::get_instance()->start();
+
+    JobConfigurator job_config;
+
+    std::filesystem::create_directories("test/data");
+
+    // https://www.boost.org/doc/libs/1_74_0/libs/graph/doc/figs/file_dep.gif
+
+    // ТАСКИ 1 УРОВНЯ
+    TaskPtr dax_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "dax.h");
+    job_config.add_task(dax_task);
+    TaskPtr zow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "zow.h");
+    job_config.add_task(zow_task);
+    TaskPtr yow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "yow.h");
+    job_config.add_task(yow_task);
+    TaskPtr boz_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "boz.h");
+    job_config.add_task(boz_task);
+
+    // ТАСКИ СЛЕДУЮЩИХ УРОВНЕЙ
+    TaskPtr foo_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zow.h", "dax.h"}, "foo.cpp");
+    job_config.add_task(foo_cpp_task);
+    job_config.add_dependency(foo_cpp_task, zow_task);
+    job_config.add_dependency(foo_cpp_task, dax_task);
+
+    TaskPtr bar_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "dax.h", "boz.h"}, "bar.cpp");
+    job_config.add_task(bar_cpp_task);
+    job_config.add_dependency(bar_cpp_task, yow_task);
+    job_config.add_dependency(bar_cpp_task, dax_task);
+    job_config.add_dependency(bar_cpp_task, boz_task);
+
+    TaskPtr zig_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"boz.h"}, "zig.cpp");
+    job_config.add_task(zig_cpp_task);
+    job_config.add_dependency(zig_cpp_task, boz_task);
+
+    TaskPtr zag_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "boz.h"}, "zag.cpp");
+    job_config.add_task(zag_cpp_task);
+    job_config.add_dependency(zag_cpp_task, yow_task);
+    job_config.add_dependency(zag_cpp_task, boz_task);
+
+    TaskPtr foo_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.cpp"}, "foo.o");
+    job_config.add_task(foo_o_task);
+    job_config.add_dependency(foo_o_task, foo_cpp_task);
+
+    TaskPtr bar_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"bar.cpp"}, "bar.o");
+    job_config.add_task(bar_o_task);
+    job_config.add_dependency(bar_o_task, bar_cpp_task);
+
+    TaskPtr libfoobar_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.o", "bar.o"}, "libfoobar.a");
+    job_config.add_task(libfoobar_task);
+    job_config.add_dependency(libfoobar_task, foo_o_task);
+    job_config.add_dependency(libfoobar_task, bar_o_task);
+
+    TaskPtr zig_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zig.cpp"}, "zig.o");
+    job_config.add_task(zig_o_task);
+    job_config.add_dependency(zig_o_task, zig_cpp_task);
+
+    TaskPtr zag_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zag.cpp"}, "zag.o");
+    job_config.add_task(zag_o_task);
+    job_config.add_dependency(zag_o_task, zag_cpp_task);
+
+    TaskPtr libzigzag_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libfoobar.a", "zig.o", "zag.o"}, "libzigzag.a");
+    job_config.add_task(libzigzag_task);
+    job_config.add_dependency(libzigzag_task, libfoobar_task);
+    job_config.add_dependency(libzigzag_task, zig_o_task);
+    job_config.add_dependency(libzigzag_task, zag_o_task);
+
+    TaskPtr killerapp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libzigzag.a"}, "killerapp");
+    job_config.add_task(killerapp_task);
+    killerapp_task->set_tag(334);
+    job_config.add_dependency(killerapp_task, libzigzag_task);
+
+    bool finished = false;
+    job_config.set_finish_callback([&finished](IJob*){
+        finished = true;
+    });
+
+    JobManager::get_instance()->run_job_once(job_config);
+
+    while (!finished) {
+        std::this_thread::sleep_for(0.1s);
+    }
+
+    ASSERT_TRUE(std::filesystem::exists("test/data/killerapp")) << " target file \"killerapp\" not created.";
+
+    JobManager::get_instance()->stop();
+
+    std::filesystem::remove_all("test/data");
+}
