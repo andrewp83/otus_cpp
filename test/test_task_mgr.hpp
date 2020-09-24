@@ -275,25 +275,25 @@ TEST(test_job, complex_linked_tasks) {
     job_config.add_task(boz_task);
 
     // ТАСКИ СЛЕДУЮЩИХ УРОВНЕЙ
-    TaskPtr foo_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zow.h", "dax.h"}, "foo.cpp");
-    job_config.add_task(foo_cpp_task);
-    job_config.add_dependency(foo_cpp_task, zow_task);
-    job_config.add_dependency(foo_cpp_task, dax_task);
-
-    TaskPtr bar_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "dax.h", "boz.h"}, "bar.cpp");
-    job_config.add_task(bar_cpp_task);
-    job_config.add_dependency(bar_cpp_task, yow_task);
-    job_config.add_dependency(bar_cpp_task, dax_task);
-    job_config.add_dependency(bar_cpp_task, boz_task);
-
-    TaskPtr zig_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"boz.h"}, "zig.cpp");
-    job_config.add_task(zig_cpp_task);
-    job_config.add_dependency(zig_cpp_task, boz_task);
-
-    TaskPtr zag_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "boz.h"}, "zag.cpp");
-    job_config.add_task(zag_cpp_task);
-    job_config.add_dependency(zag_cpp_task, yow_task);
-    job_config.add_dependency(zag_cpp_task, boz_task);
+//    TaskPtr foo_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zow.h", "dax.h"}, "foo.cpp");
+//    job_config.add_task(foo_cpp_task);
+//    job_config.add_dependency(foo_cpp_task, zow_task);
+//    job_config.add_dependency(foo_cpp_task, dax_task);
+//
+//    TaskPtr bar_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "dax.h", "boz.h"}, "bar.cpp");
+//    job_config.add_task(bar_cpp_task);
+//    job_config.add_dependency(bar_cpp_task, yow_task);
+//    job_config.add_dependency(bar_cpp_task, dax_task);
+//    job_config.add_dependency(bar_cpp_task, boz_task);
+//
+//    TaskPtr zig_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"boz.h"}, "zig.cpp");
+//    job_config.add_task(zig_cpp_task);
+//    job_config.add_dependency(zig_cpp_task, boz_task);
+//
+//    TaskPtr zag_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"yow.h", "boz.h"}, "zag.cpp");
+//    job_config.add_task(zag_cpp_task);
+//    job_config.add_dependency(zag_cpp_task, yow_task);
+//    job_config.add_dependency(zag_cpp_task, boz_task);
 
 //    TaskPtr foo_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.cpp"}, "foo.o");
 //    job_config.add_task(foo_o_task);
