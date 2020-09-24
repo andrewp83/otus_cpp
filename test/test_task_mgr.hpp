@@ -177,76 +177,76 @@ TEST(test_job, base_multi_related_tasks) {
     JobManager::get_instance()->stop();
 }
 
-//// ВЫПОЛЕНИЕ ЗАВИСИМЫХ ЗАДАЧ
-//
-//static const int TAG_SUM_TASK = 1;
-//static const int TAG_MUL_TASK = 2;
-//static const int TAG_FACT_TASK = 3;
-//
-//class TestMeanTask : public Task {
-//public:
-//    TestMeanTask() {}
-//    virtual ~TestMeanTask() {}
-//
-//    virtual void run(IJob* job) {
-//        TaskPtr sum_task = job->get_task_by_tag(TAG_SUM_TASK);
-//        int sum = *((int*)(sum_task->get_result().get_data()));
-//        TaskPtr mul_task = job->get_task_by_tag(TAG_MUL_TASK);
-//        int mul = *((int*)(mul_task->get_result().get_data()));
-//        TaskPtr fact_task = job->get_task_by_tag(TAG_FACT_TASK);
-//        int fact = *((int*)(fact_task->get_result().get_data()));
-//
-//        res = (sum + mul + fact) / 3.0f;
-//
-//        result = TaskResult(&res, sizeof(res));
-//
-//    }
-//
-//private:
-//    float res {0.0f};
-//};
-//
-//TEST(test_job, base_dependency_tasks) {
-//
-//    JobManager::get_instance()->start();
-//
-//    JobConfigurator job_config;
-//
-//    TaskPtr sum_task = std::make_shared<TestSumTask>(3, 2);
-//    sum_task->set_tag(TAG_SUM_TASK);
-//    TaskPtr mul_task = std::make_shared<TestMultiTask>(5, 4);
-//    mul_task->set_tag(TAG_MUL_TASK);
-//    TaskPtr fact_task = std::make_shared<TestFactorialTask>(5);
-//    fact_task->set_tag(TAG_FACT_TASK);
-//    TaskPtr mean_task = std::make_shared<TestMeanTask>();
-//    mean_task->set_tag(777);
-//
-//    job_config.add_task(sum_task);
-//    job_config.add_task(mul_task);
-//    job_config.add_task(fact_task);
-//    job_config.add_task(mean_task);
-//
-//    job_config.add_dependency(mean_task, sum_task);
-//    job_config.add_dependency(mean_task, mul_task);
-//    job_config.add_dependency(mean_task, fact_task);
-//
-//    std::atomic<float> mean = 0.0f;
-//
-//    job_config.set_finish_callback([&](IJob*){
-//        mean = *((float*)(mean_task->get_result().get_data()));
-//    });
-//
-//    JobManager::get_instance()->run_job_once(job_config);
-//
-//    while (mean < 0.001f) {
-//        std::this_thread::sleep_for(0.1s);
-//    }
-//
-//    ASSERT_EQ(mean, (5 + 20 + 120) / 3.0f) << "base_dependency_tasks is wrong";
-//
-//    JobManager::get_instance()->stop();
-//}
-//
+// ВЫПОЛЕНИЕ ЗАВИСИМЫХ ЗАДАЧ
+
+static const int TAG_SUM_TASK = 1;
+static const int TAG_MUL_TASK = 2;
+static const int TAG_FACT_TASK = 3;
+
+class TestMeanTask : public Task {
+public:
+    TestMeanTask() {}
+    virtual ~TestMeanTask() {}
+
+    virtual void run(IJob* job) {
+        TaskPtr sum_task = job->get_task_by_tag(TAG_SUM_TASK);
+        int sum = *((int*)(sum_task->get_result().get_data()));
+        TaskPtr mul_task = job->get_task_by_tag(TAG_MUL_TASK);
+        int mul = *((int*)(mul_task->get_result().get_data()));
+        TaskPtr fact_task = job->get_task_by_tag(TAG_FACT_TASK);
+        int fact = *((int*)(fact_task->get_result().get_data()));
+
+        res = (sum + mul + fact) / 3.0f;
+
+        result = TaskResult(&res, sizeof(res));
+
+    }
+
+private:
+    float res {0.0f};
+};
+
+TEST(test_job, base_dependency_tasks) {
+
+    JobManager::get_instance()->start();
+
+    JobConfigurator job_config;
+
+    TaskPtr sum_task = std::make_shared<TestSumTask>(3, 2);
+    sum_task->set_tag(TAG_SUM_TASK);
+    TaskPtr mul_task = std::make_shared<TestMultiTask>(5, 4);
+    mul_task->set_tag(TAG_MUL_TASK);
+    TaskPtr fact_task = std::make_shared<TestFactorialTask>(5);
+    fact_task->set_tag(TAG_FACT_TASK);
+    TaskPtr mean_task = std::make_shared<TestMeanTask>();
+    mean_task->set_tag(777);
+
+    job_config.add_task(sum_task);
+    job_config.add_task(mul_task);
+    job_config.add_task(fact_task);
+    job_config.add_task(mean_task);
+
+    job_config.add_dependency(mean_task, sum_task);
+    job_config.add_dependency(mean_task, mul_task);
+    job_config.add_dependency(mean_task, fact_task);
+
+    std::atomic<float> mean = 0.0f;
+
+    job_config.set_finish_callback([&](IJob*){
+        mean = *((float*)(mean_task->get_result().get_data()));
+    });
+
+    JobManager::get_instance()->run_job_once(job_config);
+
+    while (mean < 0.001f) {
+        std::this_thread::sleep_for(0.1s);
+    }
+
+    ASSERT_EQ(mean, (5 + 20 + 120) / 3.0f) << "base_dependency_tasks is wrong";
+
+    JobManager::get_instance()->stop();
+}
+
 //// ПРОВЕРИТЬ НА ВЫБРОС ИСКЛЮЧЕНИЯ ПРИ ДОБАВЛЕНИИ ЦИКЛИЧЕСКИХ ЗАВИСИМОСТЕЙ
 //
 //// TO DO ....
