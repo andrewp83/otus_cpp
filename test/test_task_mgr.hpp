@@ -60,87 +60,89 @@ TEST(test_job, base_job) {
 
     JobManager::get_instance()->stop();
 }
-//
-//class TestMultiTask : public Task {
-//public:
-//    TestMultiTask(int a, int b) : a(a), b(b) {}
-//    virtual ~TestMultiTask() {}
-//
-//    virtual void run(IJob*) override {
-//        mul = a * b;
-//        result = TaskResult(&mul, sizeof(mul));
-//        std::this_thread::sleep_for(0.5s);
-//    }
-//
-//    virtual void callback(IJob*) override {
-//        //std::cout << "TestMulTask finished " << std::endl;
-//    }
-//
-//private:
-//    int a {0};
-//    int b {0};
-//    int mul {0};
-//};
-//
-//class TestFactorialTask : public Task {
-//public:
-//    TestFactorialTask(int n) : n(n) {}
-//    virtual ~TestFactorialTask() {}
-//
-//    virtual void run(IJob*) override {
-//        res = fact(n);
-//        result = TaskResult(&res, sizeof(res));
-//        std::this_thread::sleep_for(0.5s);
-//    }
-//
-//    virtual void callback(IJob*) override {
-//        //std::cout << "TestFactorialTask finished " << std::endl;
-//    }
-//
-//private:
-//    int fact(int n) {
-//        if (n <= 1) return 1;
-//        return n * fact(n - 1);
-//    }
-//
-//private:
-//    int n {0};
-//    int res {0};
-//};
-//
-//// ВЫПОЛНЕНИЕ НЕСКОЛЬКИХ НЕСВЯЗАННЫХ МЕЖДУ СОБОЙ ЗАДАЧ
-//TEST(test_job, base_multi_tasks) {
-//    std::atomic<int> sum = 0, mul = 0, fact = 0;
-//
-//    JobManager::get_instance()->start();
-//
-//    JobConfigurator job_config;
-//
-//    TaskPtr sum_task = std::make_shared<TestSumTask>(3, 2);
-//    TaskPtr mul_task = std::make_shared<TestMultiTask>(5, 4);
-//    TaskPtr fact_task = std::make_shared<TestFactorialTask>(5);
-//
-//    job_config.add_task(sum_task);
-//    job_config.add_task(mul_task);
-//    job_config.add_task(fact_task);
-//    job_config.set_finish_callback([&](IJob*){
-//        sum = *((int*)(sum_task->get_result().get_data()));
-//        mul = *((int*)(mul_task->get_result().get_data()));
-//        fact = *((int*)(fact_task->get_result().get_data()));
-//    });
-//    JobManager::get_instance()->run_job_once(job_config);
-//
-//    while (!sum || !mul || !fact) {
-//        std::this_thread::sleep_for(0.1s);
-//    }
-//
-//    ASSERT_EQ(sum, 5) << "sum task is wrong";
-//    ASSERT_EQ(mul, 20) << "mul task is wrong";
-//    ASSERT_EQ(fact, 120) << "sum task is wrong";
-//
-//    JobManager::get_instance()->stop();
-//}
-//
+
+class TestMultiTask : public Task {
+public:
+    TestMultiTask(int a, int b) : a(a), b(b) {}
+    virtual ~TestMultiTask() {}
+
+    virtual void run(IJob*) override {
+        mul = a * b;
+        result = TaskResult(&mul, sizeof(mul));
+        std::this_thread::sleep_for(0.5s);
+    }
+
+    virtual void callback(IJob*) override {
+        //std::cout << "TestMulTask finished " << std::endl;
+    }
+
+private:
+    int a {0};
+    int b {0};
+    int mul {0};
+};
+
+class TestFactorialTask : public Task {
+public:
+    TestFactorialTask(int n) : n(n) {}
+    virtual ~TestFactorialTask() {}
+
+    virtual void run(IJob*) override {
+        res = fact(n);
+        result = TaskResult(&res, sizeof(res));
+        std::this_thread::sleep_for(0.5s);
+    }
+
+    virtual void callback(IJob*) override {
+        //std::cout << "TestFactorialTask finished " << std::endl;
+    }
+
+private:
+    int fact(int n) {
+        if (n <= 1) return 1;
+        return n * fact(n - 1);
+    }
+
+private:
+    int n {0};
+    int res {0};
+};
+
+// ВЫПОЛНЕНИЕ НЕСКОЛЬКИХ НЕСВЯЗАННЫХ МЕЖДУ СОБОЙ ЗАДАЧ
+TEST(test_job, base_multi_tasks) {
+    std::cout << "DEBUG PRINT" << std::endl;
+    
+    std::atomic<int> sum = 0, mul = 0, fact = 0;
+
+    JobManager::get_instance()->start();
+
+    JobConfigurator job_config;
+
+    TaskPtr sum_task = std::make_shared<TestSumTask>(3, 2);
+    TaskPtr mul_task = std::make_shared<TestMultiTask>(5, 4);
+    TaskPtr fact_task = std::make_shared<TestFactorialTask>(5);
+
+    job_config.add_task(sum_task);
+    job_config.add_task(mul_task);
+    job_config.add_task(fact_task);
+    job_config.set_finish_callback([&](IJob*){
+        sum = *((int*)(sum_task->get_result().get_data()));
+        mul = *((int*)(mul_task->get_result().get_data()));
+        fact = *((int*)(fact_task->get_result().get_data()));
+    });
+    JobManager::get_instance()->run_job_once(job_config);
+
+    while (!sum || !mul || !fact) {
+        std::this_thread::sleep_for(0.1s);
+    }
+
+    ASSERT_EQ(sum, 5) << "sum task is wrong";
+    ASSERT_EQ(mul, 20) << "mul task is wrong";
+    ASSERT_EQ(fact, 120) << "sum task is wrong";
+
+    JobManager::get_instance()->stop();
+}
+
 //
 //// ВЫПОЛНЕНИЕ НЕСКОЛЬКИХ СВЯЗАННЫХ ЗАДАЧ
 //TEST(test_job, base_multi_related_tasks) {
