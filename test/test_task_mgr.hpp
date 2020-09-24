@@ -110,7 +110,6 @@ private:
 
 // ВЫПОЛНЕНИЕ НЕСКОЛЬКИХ НЕСВЯЗАННЫХ МЕЖДУ СОБОЙ ЗАДАЧ
 TEST(test_job, base_multi_tasks) {
-    std::cout << "DEBUG PRINT" << std::endl;
     
     std::atomic<int> sum = 0, mul = 0, fact = 0;
 
@@ -327,7 +326,7 @@ TEST(test_job, complex_linked_tasks) {
     killerapp_task->set_tag(334);
     job_config.add_dependency(killerapp_task, libzigzag_task);
 
-    bool finished = false;
+    std::atomic<bool> finished = false;
     job_config.set_finish_callback([&finished](IJob*){
         finished = true;
     });
@@ -338,7 +337,7 @@ TEST(test_job, complex_linked_tasks) {
         std::this_thread::sleep_for(0.1s);
     }
 
-    ASSERT_TRUE(finished);
+    ASSERT_TRUE(!g_storage.read_data("killerapp").empty());
     
     //ASSERT_TRUE(std::filesystem::exists("test/data/killerapp")) << " target file \"killerapp\" not created.";
 
