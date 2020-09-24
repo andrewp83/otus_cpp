@@ -327,16 +327,16 @@ TEST(test_job, complex_linked_tasks) {
 //    killerapp_task->set_tag(334);
 //    job_config.add_dependency(killerapp_task, libzigzag_task);
 
-    bool finished = false;
-    job_config.set_finish_callback([&finished](IJob*){
-        finished = true;
-    });
+//    bool finished = false;
+//    job_config.set_finish_callback([&finished](IJob*){
+//        finished = true;
+//    });
 
     JobManager::get_instance()->run_job_once(job_config);
 
-    while (!finished) {
-        std::this_thread::sleep_for(0.1s);
-    }
+//    while (!finished) {
+        std::this_thread::sleep_for(5.1s);
+//    }
 
     ASSERT_TRUE(std::filesystem::exists("test/data/killerapp")) << " target file \"killerapp\" not created.";
 
