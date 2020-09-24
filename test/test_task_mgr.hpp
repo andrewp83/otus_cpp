@@ -267,12 +267,12 @@ TEST(test_job, complex_linked_tasks) {
     // ТАСКИ 1 УРОВНЯ
     TaskPtr dax_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "dax.h");
     job_config.add_task(dax_task);
-    TaskPtr zow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "zow.h");
-    job_config.add_task(zow_task);
-    TaskPtr yow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "yow.h");
-    job_config.add_task(yow_task);
-    TaskPtr boz_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "boz.h");
-    job_config.add_task(boz_task);
+//    TaskPtr zow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "zow.h");
+//    job_config.add_task(zow_task);
+//    TaskPtr yow_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "yow.h");
+//    job_config.add_task(yow_task);
+//    TaskPtr boz_task = Task::create<TestProcessingTask>(std::vector<std::string>{}, "boz.h");
+//    job_config.add_task(boz_task);
 
     // ТАСКИ СЛЕДУЮЩИХ УРОВНЕЙ
 //    TaskPtr foo_cpp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zow.h", "dax.h"}, "foo.cpp");
