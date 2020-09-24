@@ -19,11 +19,11 @@ public:
     void start();
     void stop();
     
-    void run_job_once(const Job::Configurator& job_config);
+    void run_job_once(const JobConfigurator& job_config);
     
-    void run_job_delayed(const Job::Configurator& job_config, const std::chrono::milliseconds& delay);
+    void run_job_delayed(const JobConfigurator& job_config, const std::chrono::milliseconds& delay);
     
-    void run_job_scheduled(const Job::Configurator& job_config, const std::chrono::milliseconds& interval);
+    void run_job_scheduled(const JobConfigurator& job_config, const std::chrono::milliseconds& interval);
     
     void cancel_job_by_tag(int tag);
 

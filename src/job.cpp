@@ -13,50 +13,70 @@ namespace task_mgr {
 
 // JobConfigurator
 
-void Job::Configurator::add_task(TaskPtr task) {
+void JobConfigurator::add_task(TaskPtr task) {
     tasks.push_back(task);
 }
 
-void Job::Configurator::add_dependency(TaskPtr target, TaskPtr source) {
+void JobConfigurator::add_dependency(TaskPtr target, TaskPtr source) {
     dependencies.emplace_back(target, source);
 }
 
-void Job::Configurator::set_finish_callback(const std::function<void(IJob*)>& callback) {
+void JobConfigurator::set_finish_callback(const std::function<void(IJob*)>& callback) {
     finish_callback = callback;
 }
 
-void Job::Configurator::set_tag(int tag) {
+void JobConfigurator::set_tag(int tag) {
     this->tag = tag;
+}
+
+// JobTask
+
+JobTask::JobTask(TaskPtr task) {
+    this->task = task;
+}
+
+void JobTask::run_task() {
+    task->run(job);
+}
+
+void JobTask::finish() {
+    _is_finished = true;
+    task->callback(job);
 }
 
 
 // Job
 
-JobPtr Job::create(const Configurator &config, ThreadPool *thread_pool) {
+JobPtr Job::create(const JobConfigurator& config, ThreadPool *thread_pool) {
     return std::shared_ptr<Job>(new Job(config, thread_pool));
 }
 
-Job::Job(const Job::Configurator& config, ThreadPool* thread_pool) {
-    std::for_each(config.tasks.begin(), config.tasks.end(), [this](TaskPtr task){
-        add_task(task);
-    });
+Job::Job(const JobConfigurator& config, ThreadPool* thread_pool) {
+    std::unordered_map<TaskPtr, JobTaskPtr> tasks_to_job_tasks;
+    
+    for (const auto& task : config.get_tasks()) {
+        if (tasks_to_job_tasks.count(task) > 0) {
+            throw duplicate_task();
+        }
+        JobTaskPtr job_task = std::make_shared<JobTask>(task);
+        add_task(job_task);
+        tasks_to_job_tasks[task] = job_task;
+    }
     
     this->thread_pool = thread_pool;
     
-    finish_callback = config.finish_callback;
+    finish_callback = config.get_finish_callback();
     
-    tag = config.tag;
+    tag = config.get_tag();
     
-    std::for_each(config.dependencies.begin(), config.dependencies.end(), [this](const std::pair<TaskPtr, TaskPtr>& _p){
-        add_dependency(_p.first, _p.second);
-    });
+    for (const auto& _p : config.get_dependencies()) {
+        JobTaskPtr first_job_task = tasks_to_job_tasks[_p.first];
+        JobTaskPtr second_job_task = tasks_to_job_tasks[_p.second];
+        add_dependency(first_job_task, second_job_task);
+    }
 }
 
-void Job::add_task(TaskPtr task) {
-    
-    if (task_vertexes.left.count(task) > 0) {
-        throw duplicate_task();
-    }
+void Job::add_task(JobTaskPtr task) {
 
     task->set_job(this);
     
@@ -65,7 +85,7 @@ void Job::add_task(TaskPtr task) {
     task_vertexes.insert({task, vertex});
 }
 
-void Job::add_dependency(TaskPtr target, TaskPtr source) {
+void Job::add_dependency(JobTaskPtr target, JobTaskPtr source) {
     
     if (task_vertexes.left.count(source) == 0) {
         add_task(source);
@@ -101,14 +121,14 @@ void Job::make_tasks_order() {
     boost::topological_sort(tasks_graph, std::back_inserter(tasks_order));
 }
 
-TaskPtr Job::get_task_by_vertex(const TaskVertex& vertex) const {
+JobTaskPtr Job::get_task_by_vertex(const TaskVertex& vertex) const {
     auto it_task = task_vertexes.right.find(vertex);
     assert(it_task != task_vertexes.right.end() && "task_vertex not found");
-    TaskPtr task = it_task->second;
+    JobTaskPtr task = it_task->second;
     return task;
 }
 
-const Job::TaskVertex& Job::get_vertex_by_task(TaskPtr task) const {
+const Job::TaskVertex& Job::get_vertex_by_task(JobTaskPtr task) const {
     auto it_vertex = task_vertexes.left.find(task);
     assert(it_vertex != task_vertexes.left.end() && "task not found!");
     const TaskVertex& vertex = it_vertex->second;
@@ -125,9 +145,9 @@ void Job::run() {
     
     tasks_completed = 0;
     
-    std::for_each(task_vertexes.begin(), task_vertexes.end(), [](boost::bimap<TaskPtr, TaskVertex>::value_type& _p) {
-        return _p.get_left_pair().first->init();
-    });
+    for(const auto& _p : task_vertexes) {
+        _p.get_left_pair().first->init();
+    }
     
     _self = shared_from_this();
     
@@ -135,31 +155,29 @@ void Job::run() {
     make_tasks_order();
     
     // ДЛЯ НАЧАЛА ЗАПУСТИТЬ ВСЕ ТАСКИ, НЕ ЗАВИСЯЩИЕ ОТ ДРУГИХ, Т.Е. БЕЗ ИСХОДЯЩИХ РЕБЕР
-   // auto it_begin = tasks_order.begin();
     auto it = std::find_if_not(tasks_order.begin(), tasks_order.end(), [this](const TaskVertex& vertex){
         TaskGraph::out_edge_iterator j, j_end;
         boost::tie(j, j_end) = boost::out_edges(vertex, tasks_graph);
         return j == j_end;
     });
     
-    //std::cout << (tasks_order.begin() == it) << std::endl;
     std::for_each(tasks_order.begin(), it, [this](const TaskVertex& vertex) {
-        TaskPtr task = get_task_by_vertex(vertex);
+        JobTaskPtr task = get_task_by_vertex(vertex);
         thread_pool->push_task(task);
     });
 }
 
-void Job::run_next(TaskPtr task_completed) {
+void Job::run_next(JobTaskPtr task_completed) {
     if (tasks_completed == tasks_order.size()) {
         return;
     }
     
-    auto check_and_run_task = [this](TaskPtr task, const TaskVertex& vertex) {
+    auto check_and_run_task = [this](JobTaskPtr task, const TaskVertex& vertex) {
         TaskGraph::out_edge_iterator j, j_end;
         boost::tie(j, j_end) = boost::out_edges(vertex, tasks_graph);
         bool all_finished = std::all_of(j, j_end, [this](const TaskEdge& edge) {
             const TaskVertex& vertex = boost::target(edge, tasks_graph);
-            TaskPtr task = get_task_by_vertex(vertex);
+            JobTaskPtr task = get_task_by_vertex(vertex);
             return task->is_finished();
         });
         if (all_finished) {
@@ -173,12 +191,12 @@ void Job::run_next(TaskPtr task_completed) {
     boost::tie(j, j_end) = boost::in_edges(vertex, tasks_graph);
     for(; j != j_end; ++j) {
         const TaskVertex& vertex = boost::source(*j, tasks_graph);
-        TaskPtr task = get_task_by_vertex(vertex);
+        JobTaskPtr task = get_task_by_vertex(vertex);
         check_and_run_task(task, vertex);
     }
 }
 
-void Job::task_finished(TaskPtr task) {
+void Job::task_finished(JobTaskPtr task) {
     std::lock_guard<std::mutex> lock(job_mutex);
     
     task->finish();
@@ -194,13 +212,13 @@ void Job::task_finished(TaskPtr task) {
 }
 
 TaskPtr Job::get_task_by_tag(int tag) const {
-    auto it = std::find_if(task_vertexes.begin(), task_vertexes.end(), [&](const boost::bimap<TaskPtr, TaskVertex>::value_type& _p) {
-        return _p.get_left_pair().first->get_tag() == tag;
+    auto it = std::find_if(task_vertexes.begin(), task_vertexes.end(), [&](const boost::bimap<JobTaskPtr, TaskVertex>::value_type& _p) {
+        return _p.get_left_pair().first->get_task()->get_tag() == tag;
     });
     if (it == task_vertexes.end()) {
         return nullptr;
     }
-    return it->get_left_pair().first;
+    return it->get_left_pair().first->get_task();
 }
 
 void Job::set_tag(int tag) {

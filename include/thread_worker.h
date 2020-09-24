@@ -5,7 +5,7 @@
 #include <mutex>
 #include <thread>
 
-#include "task.h"
+#include "job.h"
 
 namespace task_mgr {
 
@@ -19,7 +19,7 @@ public:
     void run();
     
 private:
-    void process_task(TaskPtr task);
+    void process_task(JobTaskPtr task);
 
 private:
     std::thread t;

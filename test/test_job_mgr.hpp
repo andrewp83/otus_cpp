@@ -7,7 +7,7 @@
 
 #include "job_manager.h"
 #include "job.h"
-#include "task.h"
+#include "task_mgr.h"
 
 using namespace std::chrono_literals;
 using namespace task_mgr;
@@ -16,7 +16,7 @@ using namespace task_mgr;
 
 class TaskBase : public Task {
 public:
-    void run() override {
+    void run(IJob*) override {
         std::this_thread::sleep_for(0.1s);
         res = 42;
         result = TaskResult(&res, sizeof(res));
@@ -32,7 +32,7 @@ TEST(test_job_mgr, base_job) {
 
     std::atomic<int> res = 0;
 
-    Job::Configurator config;
+    JobConfigurator config;
     TaskPtr task = std::make_shared<TaskBase>();
     task->set_tag(42);
     config.add_task(task);
@@ -86,8 +86,8 @@ protected:
     
     std::atomic<int> res;
     
-    Job::Configurator job_simple_sum_config;
-    Job::Configurator job_schedule_config;
+    JobConfigurator job_simple_sum_config;
+    JobConfigurator job_schedule_config;
     
     std::atomic<int> total_res;
 };

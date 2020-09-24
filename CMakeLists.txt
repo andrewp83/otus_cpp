@@ -16,13 +16,13 @@ find_package(Boost COMPONENTS graph REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 
-set(SOURCES src/task.cpp
+set(SOURCES src/task_mgr.cpp
             src/job.cpp
             src/job_manager.cpp
             src/thread_pool.cpp
             src/thread_worker.cpp)
 
-set(HEADERS include/task.h
+set(HEADERS task_mgr.h
             include/exception.hpp
             include/job_manager.h
             include/job.h
@@ -39,6 +39,7 @@ add_executable(test_task_mgr ${SOURCES}
 							 ${HEADERS}
 							 test/test_task_mgr.hpp
                              test/test_job_mgr.hpp
+                             test/test_task_processing.hpp
 							 test/test_main.cpp)
 
 target_include_directories(task_mgr PRIVATE . src/ include/)
@@ -46,6 +47,14 @@ target_link_libraries(task_mgr PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARI
 
 target_include_directories(test_task_mgr PRIVATE ${GTEST_INCLUDE_DIRS} ./ test/ include/)
 target_link_libraries(test_task_mgr PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+
+# Test client
+add_executable(client_app   client/client_app.h
+                            client/client_app.cpp
+                            task_mgr.h)
+target_include_directories(client_app PRIVATE ./)                            
+target_link_libraries(client_app PRIVATE task_mgr)
+
 
 if (MSVC)
     target_compile_options(task_mgr PRIVATE

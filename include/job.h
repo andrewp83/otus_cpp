@@ -9,38 +9,45 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 
-#include "task.h"
+#include "task_mgr.h"
 
 namespace task_mgr {
 
 class ThreadWorker;
 class ThreadPool;
+class Job;
+using JobPtr = std::shared_ptr<Job>;
 
-struct IJob {
-    virtual TaskPtr get_task_by_tag(int tag) const = 0;
+
+class JobTask {
+public:
+    JobTask(TaskPtr task);
+    
+    void run_task();
+    
+    void set_job(Job* job) { this->job = job; }
+    Job* get_job() const { return job; }
+    
+    TaskPtr get_task() const { return task; }
+    
+    bool is_finished() const { return _is_finished; }
+    
+    void init() { _is_finished = false; }
+    
+    void finish();
+    
+private:
+    TaskPtr task;
+    std::atomic<bool> _is_finished {0};
+    Job* job {nullptr};
 };
 
-using JobPtr = std::shared_ptr<Job>;
+using JobTaskPtr = std::shared_ptr<JobTask>;
+
 
 class Job : public IJob, public std::enable_shared_from_this<Job> {
 public:
-    class Configurator {
-    public:
-        void add_task(TaskPtr task);
-        void add_dependency(TaskPtr target, TaskPtr source);
-        void set_finish_callback(const std::function<void(IJob*)>& callback);
-        void set_tag(int tag);
-        
-    private:
-        friend class Job;
-        std::vector<TaskPtr> tasks;
-        std::vector<std::pair<TaskPtr, TaskPtr>> dependencies;
-        std::function<void(IJob*)> finish_callback;
-        int tag {0};
-    };
-    
-public:
-    static JobPtr create(const Configurator& config, ThreadPool* thread_pool);
+    static JobPtr create(const JobConfigurator& config, ThreadPool* thread_pool);
     
     virtual ~Job() {
     }
@@ -48,31 +55,31 @@ public:
     virtual TaskPtr get_task_by_tag(int tag) const override;
     
 private:
-    using TaskGraph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, TaskPtr>;
+    using TaskGraph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, JobTaskPtr>;
     using TaskVertex = boost::graph_traits<TaskGraph>::vertex_descriptor;
     using TaskEdge = boost::graph_traits<TaskGraph>::edge_descriptor;
     using TaskVertexList = std::list<TaskVertex>;
     
 private:
-    Job(const Configurator& config, ThreadPool* thread_pool);
+    Job(const JobConfigurator& config, ThreadPool* thread_pool);
     
-    void add_task(TaskPtr task);
-    void add_dependency(TaskPtr target, TaskPtr source);
+    void add_task(JobTaskPtr task);
+    void add_dependency(JobTaskPtr target, JobTaskPtr source);
     
     void run();
     
-    void run_next(TaskPtr completed_task);
+    void run_next(JobTaskPtr completed_task);
     
-    void push_task(TaskPtr task);
+    void push_task(JobTaskPtr task);
     
-    void task_finished(TaskPtr task);
+    void task_finished(JobTaskPtr task);
     
     bool detect_dependency_cycle() const;
     
     void make_tasks_order();
     
-    TaskPtr get_task_by_vertex(const TaskVertex& vertex) const;
-    const TaskVertex& get_vertex_by_task(TaskPtr task) const;
+    JobTaskPtr get_task_by_vertex(const TaskVertex& vertex) const;
+    const TaskVertex& get_vertex_by_task(JobTaskPtr task) const;
     
     void set_tag(int tag);
     int get_tag() const;
@@ -80,6 +87,7 @@ private:
 private:
     friend class ThreadWorker;
     friend class JobManager;
+    friend class JobTask;
     
     ThreadPool* thread_pool {nullptr};
         
@@ -87,7 +95,7 @@ private:
     
     TaskVertexList tasks_order;
     
-    boost::bimap<TaskPtr, TaskVertex> task_vertexes;
+    boost::bimap<JobTaskPtr, TaskVertex> task_vertexes;
     
     
     struct cycle_detector : public boost::dfs_visitor<> {

@@ -32,7 +32,7 @@ void JobManager::stop() {
     }
 }
 
-void JobManager::run_job_once(const Job::Configurator& job_config) {
+void JobManager::run_job_once(const JobConfigurator& job_config) {
     JobPtr job = Job::create(job_config, thread_pool);
     {
         std::lock_guard<std::mutex> lock(cv_m);
@@ -42,7 +42,7 @@ void JobManager::run_job_once(const Job::Configurator& job_config) {
     //update_jobs_schedule();
 }
 
-void JobManager::run_job_delayed(const Job::Configurator& job_config, const std::chrono::milliseconds& delay) {
+void JobManager::run_job_delayed(const JobConfigurator& job_config, const std::chrono::milliseconds& delay) {
     JobPtr job = Job::create(job_config, thread_pool);
     {
         std::lock_guard<std::mutex> lock(cv_m);
@@ -53,7 +53,7 @@ void JobManager::run_job_delayed(const Job::Configurator& job_config, const std:
     cv.notify_one();
 }
 
-void JobManager::run_job_scheduled(const Job::Configurator& job_config, const std::chrono::milliseconds& interval) {
+void JobManager::run_job_scheduled(const JobConfigurator& job_config, const std::chrono::milliseconds& interval) {
     JobPtr job = Job::create(job_config, thread_pool);
     {
         std::lock_guard<std::mutex> lock(cv_m);

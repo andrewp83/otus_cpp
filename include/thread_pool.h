@@ -4,8 +4,8 @@
 #include <mutex>
 #include <queue>
 
-#include "task.h"
 #include "thread_worker.h"
+#include "job.h"
 
 namespace task_mgr {
 
@@ -19,17 +19,17 @@ public:
     
     void stop();
     
-    void push_task(TaskPtr task);
-    TaskPtr pop_task();
+    void push_task(JobTaskPtr task);
+    JobTaskPtr pop_task();
     
-    std::queue<TaskPtr>& get_task_queue() { return task_queue; }
+    std::queue<JobTaskPtr>& get_task_queue() { return task_queue; }
     std::mutex& get_queue_mutex() { return queue_mutex; }
     std::condition_variable& get_queue_cv() { return queue_cv; }
     
 private:
     std::list<ThreadWorker> workers;
     
-    std::queue<TaskPtr> task_queue;
+    std::queue<JobTaskPtr> task_queue;
     std::mutex queue_mutex;
     std::condition_variable queue_cv;
 };

@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "job.h"
 #include "thread_pool.h"
 
 
@@ -19,8 +18,8 @@ ThreadWorker::~ThreadWorker() {
     t.join();
 }
 
-void ThreadWorker::process_task(TaskPtr task) {
-    task->run();
+void ThreadWorker::process_task(JobTaskPtr task) {
+    task->run_task();
     task->get_job()->task_finished(task);
 }
 
@@ -31,7 +30,7 @@ void ThreadWorker::run() {
             return !thread_pool.get_task_queue().empty() || quit;
         });
         if (!quit) {
-            TaskPtr task = thread_pool.pop_task();
+            JobTaskPtr task = thread_pool.pop_task();
             lock.unlock();
             process_task(task);
         }
