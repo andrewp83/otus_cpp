@@ -1,8 +1,10 @@
 #pragma once
 
+#include <atomic>
 #include <list>
 #include <map>
 #include <iostream>
+#include <mutex>
 
 #include <boost/bimap.hpp>
 #include <boost/graph/graph_traits.hpp>
