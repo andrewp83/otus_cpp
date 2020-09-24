@@ -344,5 +344,5 @@ TEST(test_job, complex_linked_tasks) {
 
     JobManager::get_instance()->stop();
 
-    std::filesystem::remove_all("test/data");
+    //std::filesystem::remove_all("test/data");
 }
