@@ -295,37 +295,37 @@ TEST(test_job, complex_linked_tasks) {
     job_config.add_dependency(zag_cpp_task, yow_task);
     job_config.add_dependency(zag_cpp_task, boz_task);
 
-    TaskPtr foo_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.cpp"}, "foo.o");
-    job_config.add_task(foo_o_task);
-    job_config.add_dependency(foo_o_task, foo_cpp_task);
-
-    TaskPtr bar_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"bar.cpp"}, "bar.o");
-    job_config.add_task(bar_o_task);
-    job_config.add_dependency(bar_o_task, bar_cpp_task);
-
-    TaskPtr libfoobar_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.o", "bar.o"}, "libfoobar.a");
-    job_config.add_task(libfoobar_task);
-    job_config.add_dependency(libfoobar_task, foo_o_task);
-    job_config.add_dependency(libfoobar_task, bar_o_task);
-
-    TaskPtr zig_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zig.cpp"}, "zig.o");
-    job_config.add_task(zig_o_task);
-    job_config.add_dependency(zig_o_task, zig_cpp_task);
-
-    TaskPtr zag_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zag.cpp"}, "zag.o");
-    job_config.add_task(zag_o_task);
-    job_config.add_dependency(zag_o_task, zag_cpp_task);
-
-    TaskPtr libzigzag_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libfoobar.a", "zig.o", "zag.o"}, "libzigzag.a");
-    job_config.add_task(libzigzag_task);
-    job_config.add_dependency(libzigzag_task, libfoobar_task);
-    job_config.add_dependency(libzigzag_task, zig_o_task);
-    job_config.add_dependency(libzigzag_task, zag_o_task);
-
-    TaskPtr killerapp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libzigzag.a"}, "killerapp");
-    job_config.add_task(killerapp_task);
-    killerapp_task->set_tag(334);
-    job_config.add_dependency(killerapp_task, libzigzag_task);
+//    TaskPtr foo_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.cpp"}, "foo.o");
+//    job_config.add_task(foo_o_task);
+//    job_config.add_dependency(foo_o_task, foo_cpp_task);
+//
+//    TaskPtr bar_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"bar.cpp"}, "bar.o");
+//    job_config.add_task(bar_o_task);
+//    job_config.add_dependency(bar_o_task, bar_cpp_task);
+//
+//    TaskPtr libfoobar_task = Task::create<TestProcessingTask>(std::vector<std::string>{"foo.o", "bar.o"}, "libfoobar.a");
+//    job_config.add_task(libfoobar_task);
+//    job_config.add_dependency(libfoobar_task, foo_o_task);
+//    job_config.add_dependency(libfoobar_task, bar_o_task);
+//
+//    TaskPtr zig_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zig.cpp"}, "zig.o");
+//    job_config.add_task(zig_o_task);
+//    job_config.add_dependency(zig_o_task, zig_cpp_task);
+//
+//    TaskPtr zag_o_task = Task::create<TestProcessingTask>(std::vector<std::string>{"zag.cpp"}, "zag.o");
+//    job_config.add_task(zag_o_task);
+//    job_config.add_dependency(zag_o_task, zag_cpp_task);
+//
+//    TaskPtr libzigzag_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libfoobar.a", "zig.o", "zag.o"}, "libzigzag.a");
+//    job_config.add_task(libzigzag_task);
+//    job_config.add_dependency(libzigzag_task, libfoobar_task);
+//    job_config.add_dependency(libzigzag_task, zig_o_task);
+//    job_config.add_dependency(libzigzag_task, zag_o_task);
+//
+//    TaskPtr killerapp_task = Task::create<TestProcessingTask>(std::vector<std::string>{"libzigzag.a"}, "killerapp");
+//    job_config.add_task(killerapp_task);
+//    killerapp_task->set_tag(334);
+//    job_config.add_dependency(killerapp_task, libzigzag_task);
 
     bool finished = false;
     job_config.set_finish_callback([&finished](IJob*){
