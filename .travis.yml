@@ -1,6 +1,6 @@
-dist: xenial
+dist: bionic
 
-language: cpp
+language: c++
 
 if: commit_message =~ /_BUILD/
 
@@ -8,31 +8,16 @@ if: commit_message =~ /_BUILD/
 addons:
   apt:
     sources:
-    - sourceline: 'ppa:ubuntu-toolchain-r/test'
+    - ubuntu-toolchain-r-test
     packages:
     - g++-8 
-
-
-before_script:
-- sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
-
-#- sudo add-apt-repository ppa:mhier/libboost-latest -y
-- sudo apt-get update -q
-#- sudo apt-get install libboost1.70-dev -y
-
-- sudo apt-get install libgtest-dev -y
-- sudo apt-get install cmake -y
-- cd /usr/src/gtest
-- sudo cmake CMakeLists.txt
-- sudo make
-- sudo cp *.a /usr/lib
-- cd $TRAVIS_BUILD_DIR
+    - libdlib-dev
+    - libopenblas-dev
 
 
 script:
 - cmake .
 - cmake --build .
-#- cmake --build . --target test
 - cmake --build . --target package
 
 
@@ -40,6 +25,6 @@ deploy:
   - provider: script
     skip_cleanup: true
     script:
-    - curl -T yamr-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/yamr/$TRAVIS_BUILD_NUMBER/yamr-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    - curl -T kkmeans-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/kkmeans/$TRAVIS_BUILD_NUMBER/kkmeans-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
     on:
-      branch: homework_14
+      branch: homework_15
