@@ -7,14 +7,23 @@ KMeans::KMeans(unsigned long num_clusters, double kernel_gamma, double tolerance
     
 }
 
-void KMeans::fit(const std::vector<Point>& data_points) {
+void KMeans::fit(const std::vector<Flat>& data_points) {
     
     std::vector<sample_type> samples;
     sample_type m;
+    
+    // НОРМАЛЬИЗОВАТЬ НЕ ЗАБЫТЬ
+    
+    rows_minmax_values.clear();
 
-    for (const auto& pt : data_points) {
-        m(0) = pt.x;
-        m(1) = pt.y;
+    for (const auto& fl : data_points) {
+        m(0) = fl.longitude;
+        m(1) = fl.latitude;
+        m(2) = fl.rooms;
+        m(3) = fl.price;
+        m(4) = fl.footage;
+        m(5) = fl.kitchen;
+        m(6) = (fl.floor == 1 || fl.floor == fl.floors) ? 0 : -1; //  0 - если этаж первый или последний, в остальных случаях - 1
         samples.push_back(m);
     }
     
@@ -33,9 +42,22 @@ void KMeans::fit(const std::vector<Point>& data_points) {
     test.train(samples, initial_centers);
 }
 
-unsigned long KMeans::predict(const Point& point) {
+unsigned long KMeans::predict(const Flat& fl) {
     sample_type m;
-    m(0) = point.x;
-    m(1) = point.y;
+    m(0) = fl.longitude;
+    m(1) = fl.latitude;
+    m(2) = fl.rooms;
+    m(3) = fl.price;
+    m(4) = fl.footage;
+    m(5) = fl.kitchen;
+    m(6) = (fl.floor == 1 || fl.floor == fl.floors) ? 0 : -1; //  0 - если этаж первый или последний, в остальных случаях - 1
     return test(m);
+}
+
+void KMeans::serialize(const std::string& file_name) {
+    dlib::serialize(file_name) << test;
+}
+
+void KMeans::deserialize(const std::string& file_name) {
+    dlib::deserialize(file_name) >> test;
 }

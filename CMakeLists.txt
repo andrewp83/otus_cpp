@@ -7,7 +7,7 @@ else()
     message(WARNING "TRAVIS_BUILD_NUMBER env variable is undefined! It is set to 1.")
 endif()
 
-project(kkmeans VERSION 0.0.${COMMON_TBN})
+project(realty VERSION 0.0.${COMMON_TBN})
 
 
 find_package(dlib REQUIRED)
@@ -17,24 +17,44 @@ include_directories(${dlib_INCLUDE_DIRS})
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(kkmeans main.cpp src/k_means.cpp 
-                                include/k_means.h
-                                include/point.h)
+# rclst
 
-target_include_directories(kkmeans PRIVATE include)
-target_link_libraries(kkmeans PRIVATE ${DLIB})
+add_executable(rclst    src/rclst.cpp
+                        src/k_means.cpp 
+                        include/k_means.h
+                        include/flat.h)
+
+target_include_directories(rclst PRIVATE include)
+target_link_libraries(rclst PRIVATE ${DLIB})
+
+#rclss
+
+add_executable(rclss    src/rclss.cpp
+                        src/k_means.cpp 
+                        include/k_means.h
+                        include/flat.h)
+
+target_include_directories(rclss PRIVATE include)
+target_link_libraries(rclss PRIVATE ${DLIB})
 
 if (MSVC)
-    target_compile_options(kkmeans PRIVATE
+    target_compile_options(rclst PRIVATE
         /W4
     )
+    target_compile_options(rclss PRIVATE
+        /W4
+    )    
 else ()
-    target_compile_options(kkmeans PRIVATE
+    target_compile_options(rclst PRIVATE
         -Wall -Wextra -pedantic
     )
+    target_compile_options(rclss PRIVATE
+        -Wall -Wextra -pedantic
+    )    
 endif()
 
-install(TARGETS kkmeans RUNTIME DESTINATION bin)
+install(TARGETS rclst RUNTIME DESTINATION bin)
+install(TARGETS rclss RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
