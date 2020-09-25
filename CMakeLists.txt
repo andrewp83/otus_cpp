@@ -9,10 +9,6 @@ endif()
 
 project(kkmeans VERSION 0.0.${COMMON_TBN})
 
-#set(SOURCES src/mail_mapper.cpp)
-
-#set(HEADERS include/mapper.h)
-
 
 find_package(dlib REQUIRED)
 set(DLIB dlib::dlib)
@@ -21,9 +17,11 @@ include_directories(${dlib_INCLUDE_DIRS})
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(kkmeans main.cpp)
+add_executable(kkmeans main.cpp src/k_means.cpp 
+                                include/k_means.h
+                                include/point.h)
 
-#target_include_directories(kkmeans PRIVATE ./ src/ include/)
+target_include_directories(kkmeans PRIVATE include)
 target_link_libraries(kkmeans PRIVATE ${DLIB})
 
 if (MSVC)
@@ -47,4 +45,3 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
-
