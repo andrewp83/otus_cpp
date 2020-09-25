@@ -15,7 +15,7 @@ set(DLIB dlib::dlib)
 include_directories(${dlib_INCLUDE_DIRS})
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 add_executable(kkmeans main.cpp src/k_means.cpp 
                                 include/k_means.h

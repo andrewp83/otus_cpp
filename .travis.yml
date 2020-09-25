@@ -10,7 +10,7 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - g++-8 
+    - g++-7
     - libdlib-dev
     - libopenblas-dev
 
