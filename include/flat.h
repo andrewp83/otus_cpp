@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "utils.h"
+
+
 struct Flat {
     double longitude {0.0};
     double latitude {0.0};
@@ -14,3 +17,5 @@ struct Flat {
     int floor {0};
     int floors {0};
 };
+
+void flat_from_str(const std::string& str, Flat& flat, unsigned long& cluster);

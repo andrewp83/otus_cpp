@@ -19,10 +19,21 @@ set(CMAKE_CXX_STANDARD 14)
 
 # rclst
 
+set(SOURCES src/k_means.cpp
+            src/utils.cpp
+            src/flat.cpp
+            src/flat_clusterizator.cpp)
+
+
+set(HEADERS include/k_means.h
+            include/utils.h
+            include/flat_clusterizator.h
+            include/flat.h)
+
+
 add_executable(rclst    src/rclst.cpp
-                        src/k_means.cpp 
-                        include/k_means.h
-                        include/flat.h)
+                        ${SOURCES}
+                        ${HEADERS})
 
 target_include_directories(rclst PRIVATE include)
 target_link_libraries(rclst PRIVATE ${DLIB})
@@ -30,9 +41,8 @@ target_link_libraries(rclst PRIVATE ${DLIB})
 #rclss
 
 add_executable(rclss    src/rclss.cpp
-                        src/k_means.cpp 
-                        include/k_means.h
-                        include/flat.h)
+                        ${SOURCES}
+                        ${HEADERS})
 
 target_include_directories(rclss PRIVATE include)
 target_link_libraries(rclss PRIVATE ${DLIB})

@@ -4,28 +4,11 @@
 #include <string>
 
 #include "flat.h"
-#include "k_means.h"
-
-// ВСПОМНИМ ПЕРВУЮ ДОМАШКУ
-std::vector<std::string> split(const std::string &str, char d) {
-    std::vector<std::string> r;
-
-    std::string::size_type start = 0;
-    std::string::size_type stop = str.find_first_of(d);
-    while(stop != std::string::npos) {
-        r.push_back(str.substr(start, stop - start));
-
-        start = stop + 1;
-        stop = str.find_first_of(d, start);
-    }
-
-    r.push_back(str.substr(start));
-
-    return r;
-}
+#include "flat_clusterizator.h"
+#include "utils.h"
 
 
-const std::string& file_dataset = "data/dataset.csv";
+//const std::string& FILE_DATASET = "dataset.csv";
 
 int main(int argc, char* argv[]) {
     
@@ -47,34 +30,18 @@ int main(int argc, char* argv[]) {
     // read_data
     std::vector<Flat> data_points;
     
-    std::fstream fs(file_dataset);
+    //std::fstream fs(FILE_DATASET);
 
-    for(std::string line; std::getline(fs, line);) {
-        std::vector<std::string> v = split(line, ';');
+    for(std::string line; std::getline(std::cin/*fs*/, line);) {
         Flat flat;
-        flat.longitude = std::stod(v.at(0));
-        flat.latitude = std::stod(v.at(1));
-        flat.rooms = std::stoi(v.at(2));
-        flat.price = std::stod(v.at(3));
-        flat.footage = std::stod(v.at(4));
-        flat.kitchen = std::stod(v.at(5));
-        flat.floor = std::stod(v.at(6));
-        flat.floors = std::stod(v.at(7));
-        
+        unsigned long cl;
+        flat_from_str(line, flat, cl);
         data_points.push_back(flat);
     }
     
-    KMeans k_means(n_clusters, 0.1, 0.01);
-    
-    k_means.fit(data_points);
-    
-    k_means.serialize(model_fname);
-    
-//    for (const Point& pt : data_points) {
-//        unsigned long cluster = k_means.predict(pt);
-//        std::cout << pt.x << ";" << pt.y << ";" << cluster << std::endl;
-//    }
-
+    FlatClusterizator clusterizator(n_clusters);
+    clusterizator.fit(data_points);
+    clusterizator.serialize(model_fname);
     
     return 0;
 }
