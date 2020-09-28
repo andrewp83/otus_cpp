@@ -1,5 +1,7 @@
 #include "k_means.h"
 
+#include <cassert>
+
 #include "utils.h"
 
 KMeans::KMeans(unsigned long num_clusters, double kernel_gamma, double tolerance, unsigned long max_dictionary_size)

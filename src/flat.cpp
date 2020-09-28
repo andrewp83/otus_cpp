@@ -1,5 +1,7 @@
 #include "flat.h"
 
+#include <cassert>
+
 
 void flat_from_str(const std::string& str, Flat& flat, unsigned long& cluster) {
     
