@@ -25,6 +25,6 @@ deploy:
   - provider: script
     skip_cleanup: true
     script:
-    - curl -T kkmeans-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/kkmeans/$TRAVIS_BUILD_NUMBER/kkmeans-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
+    - curl -T realty-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb -uandrewp83:$BINTRAY_API_KEY "https://api.bintray.com/content/andrewp83/otus-cpp/realty/$TRAVIS_BUILD_NUMBER/realty-0.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
     on:
-      branch: homework_15
+      branch: homework_16
